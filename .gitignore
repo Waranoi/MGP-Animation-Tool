@@ -33,3 +33,6 @@
 
 # Text Editors
 *.vscode/
+
+# Binary folders
+build/

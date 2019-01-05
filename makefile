@@ -1,7 +1,6 @@
 # This makefile automatically adds all directories and sub-directories under the 'source' directory as c-source folders, cpp-source folders and include folders.
 # If you want to exclude one or more folders from this automated process then add the folders to the EXCLUDE variable.
 # You can manually add source and include files below, libraries and library folders have to be added manually.
-# Because of vpath usage, this makefile only works if all source filenames are unique
 
 EXCLUDE := source/core/Window source/vmath-0.13
 
@@ -25,10 +24,6 @@ SRCROOT = source
 SRCDIRS := $(patsubst %/,%,$(dir $(CSRCS)) $(dir $(CXXSRCS)))
 # Add all folders below source root as source directories, in a convenient format. Folders to and below the ones specified in the EXCLUDE variable are ignored
 SRCDIRS += $(patsubst ./%,%,$(shell find ./$(SRCROOT) $(patsubst %,-not \( -path ./% -prune \),$(EXCLUDE)) -type d))
-
-# Set vpath to find source files in source directories
-vpath %.c $(SRCDIRS)
-vpath %.cpp $(SRCDIRS)
 
 # Find all source files in all source directories
 CSRCS += $(wildcard $(SRCDIRS:%=%/*.c))
@@ -59,6 +54,10 @@ $(BIN)/%.o: %.cpp
 
 $(BIN)/%.o: %.c
 	g++ -c -o $@ $< $(INCLUDE)
+
+.PHONY: clean
+clean:
+	rm -r $(BIN)
 
 -include $(DEPS)
 
