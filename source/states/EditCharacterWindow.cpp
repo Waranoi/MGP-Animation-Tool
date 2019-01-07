@@ -1,6 +1,8 @@
 #include "EditCharacterWindow.h"
 #include "StateMediator.h"
 
+using namespace CharacterTypes;
+
 void EditCharacterWindow::EditCharacterState(Character target)
 {
     // Keyboard action event for this State.

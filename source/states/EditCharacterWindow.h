@@ -4,12 +4,12 @@
 namespace EditCharacterWindow
 {
     // The character being edited
-    Character character;
+    CharacterTypes::Character character;
 
     // The state used to enter this Window, the 'character' value will be replaced by the 'target' value.
     // Features: Edit name of character, edit fps of animations, create new animations/sprite sheets, print list of animations/sprite sheets, select animation/sprite sheet.
     // Connections: PlayAnimationState(a -> enter animation index or 'new'), EditSpriteSheetState(s -> enter sprite sheet index or 'new')
-    void EditCharacterState(Character target);
+    void EditCharacterState(CharacterTypes::Character target);
 
     // Features: Edit name of animation, change sprite sheet used, create new sprite, cycle through list of sprites, select sprite, remove animation
     // Connections: PlayAnimationState(p), EditSpriteState(e, 'n' for new sprite), EditCharacterState(esc, 'r' to remove animation)
