@@ -33,7 +33,7 @@ void CharacterTypes::from_json(const json& j, Hitbox& h)
     j.at("min").get_to(min);
     j.at("max").get_to(max);
 
-    if (min.size() == 3 && max.size == 3)
+    if (min.size() == 3 && max.size() == 3)
         h.hitbox = Aabb3f(min[0], min[1], min[2], max[0], max[1], max[2]);
     else
         ;// Todo: Print error

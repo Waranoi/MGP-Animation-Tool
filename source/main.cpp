@@ -1,6 +1,12 @@
 #include "core/Window/Window.h"
 #include <stdio.h>
 #include <math.h>
+#include "character/Character.h"
+#include <fstream>
+#include <iomanip>
+
+using namespace CharacterTypes;
+using namespace std;
 
 GLFWwindow *window;
 GLuint program;
@@ -125,7 +131,37 @@ bool Setup()
 	glGenBuffers(1, &triangle_ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangle_ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ebo), ebo, GL_STATIC_DRAW);
-	
+
+	Version v;
+	v.major = 0;
+	v.minor = 1;
+	v.patch = 0;
+
+	Hitbox h;
+	h.type = HitboxType::HURTBOX;
+	h.hitbox = Aabb3f(10, 10, 0, 40, 50, 0);
+
+	Sprite s;
+	s.cell = 1;
+	s.hitboxes = {h, h, h};
+
+	Animation a;
+	a.name = "Test Animation";
+	a.sprites = {s, s};
+
+	Character c;
+	c.version = v;
+	c.fps = 30;
+	c.name = "Test Character";
+	c.animations = {a};
+
+	nlohmann::json j = c;
+
+	ofstream outfile;
+   	outfile.open("TestJson.json", ios::out | ios::trunc);
+	outfile << j.dump(4);
+   	outfile.close();
+
 	return true;
 }
 
