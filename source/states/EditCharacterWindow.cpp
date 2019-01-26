@@ -3,7 +3,10 @@
 #include "ConsoleUtils.h"
 #include <stdio.h>
 
+#define NONE -1
+
 using namespace CharacterTypes;
+using namespace ValidateCharacter;
 
 void EditCharacterWindow::EditCharacterState(Character target)
 {
@@ -77,6 +80,9 @@ void EditCharacterWindow::EditCharacterState(Character target)
 
 void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
 {
+    if (!ValidateSpriteSheet(character, spriteSheet))
+        return;
+
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_R && action == GLFW_PRESS)
@@ -102,6 +108,9 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
 
 void EditCharacterWindow::PlayAnimationState(int animation)
 {
+    if (!ValidateAnimation(character, animation))
+        return;
+
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation] (GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_E && action == GLFW_PRESS)
@@ -126,6 +135,16 @@ void EditCharacterWindow::PlayAnimationState(int animation)
 
 void EditCharacterWindow::EditAnimationState(int animation, int sprite)
 {
+    // Make sure the animation exists
+    if (!ValidateAnimation(character, animation))
+        return;
+
+    // If sprite list is empty, set selected sprite to NONE, otherwise check if sprite exists
+    if (character.animations[animation].sprites.empty())
+        sprite = NONE;
+    else if (!ValidateSprite(character, animation, sprite))
+        return;
+        
     printf("State: Edit Animation");
     printf("P: Playback animation");
     printf("E: Select sprite");
@@ -139,35 +158,17 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
     KeyboardCallback newKeyboardEvent = [animation, sprite] (GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_P && action == GLFW_PRESS)
         {
-            // Play animation
-            if (sprite == -1)
-            {
-                printf("Can't playback animation without sprites");
-                return;
-            }
-            
+            // Animate selected animation
             PlayAnimationState(animation);
         }
         else if (key == GLFW_KEY_E && action == GLFW_PRESS)
         {
             // Edit selected sprite
-            if (sprite == -1)
-            {
-                printf("No sprites to edit");
-                return;
-            }
-            
             EditSpriteState(animation, sprite, 0);
         }
         else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
         {
-            // Highlight the next sprite
-            if (sprite == -1)
-            {
-                printf("No sprites to cycle through");
-                return;
-            }
-
+            // Select next sprite
             int next = sprite + 1;
             if (next >= character.animations[animation].sprites.size())
                 next = 0;
@@ -175,12 +176,7 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
         }
         else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
         {
-            // Highlight the next sprite
-            if (sprite == -1)
-            {
-                printf("No sprites to cycle through");
-                return;
-            }
+            // Select previous sprite
             int prev = sprite - 1;
             if (prev <= 0)
                 prev = character.animations[animation].sprites.size()-1;
@@ -216,6 +212,16 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
 
 void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
 {
+    // Make sure the sprite exists
+    if (!ValidateSprite(character, animation, sprite))
+        return;
+
+    // If hitbox list is empty, set selected hitbox to NONE, otherwise check if hitbox exists
+    if (character.animations[animation].sprites[sprite].hitboxes.empty())
+        hitbox = NONE;
+    else if (!ValidateHitbox(character, animation, sprite, hitbox))
+        return;
+        
     printf("State: Edit Sprite");
     printf("E: Select hitbox");
     printf("Right arrow: Next hitbox");
@@ -229,23 +235,11 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
         if (key == GLFW_KEY_E && action == GLFW_PRESS)
         {
              // Edit selected hitbox
-            if (hitbox == -1)
-            {
-                printf("No hitboxes to edit");
-                return;
-            }
-            
             EditHitboxState(animation, sprite, hitbox);
         }
         else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
         {
-            // Highlight the next hitbox
-            if (hitbox == -1)
-            {
-                printf("No hitboxes to cycle through");
-                return;
-            }
-
+            // Select next hitbox
             int next = hitbox + 1;
             if (next >= character.animations[animation].sprites[sprite].hitboxes.size())
                 next = 0;
@@ -253,12 +247,7 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
         }
         else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
         {
-            // Highlight the next hitbox
-            if (hitbox == -1)
-            {
-                printf("No hitboxes to cycle through");
-                return;
-            }
+            // Select previous hitbox
             int prev = hitbox - 1;
             if (prev <= 0)
                 prev = character.animations[animation].sprites[sprite].hitboxes.size()-1;
@@ -298,6 +287,9 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
 
 void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
 {
+    if (!ValidateHitbox(character, animation, sprite, hitbox))
+        return;
+        
     printf("State: Edit Hitbox");
     printf("Left click: Drag the corners to change the dimension");
     printf("Left click: Drag the center to change the position");
@@ -358,3 +350,64 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, newMouseBtnEvent, newMousePosEvent, newDrawEvent);
 }
+
+bool ValidateCharacter::ValidateSpriteSheet(Character character, int spriteSheet)
+{
+    if (spriteSheet < 0 || spriteSheet >= character.spriteSheets.size())
+    {
+        printf("Selected sprite sheet does not exist!");
+        return false;
+    }
+    else
+        return true;
+}
+
+bool ValidateCharacter::ValidateAnimation(Character character, int animation)
+{
+    if (animation < 0 || animation >= character.animations.size())
+    {
+        printf("Selected animation does not exist!");
+        return false;
+    }
+    else
+        return true;
+}
+
+bool ValidateCharacter::ValidateSprite(Character character, int animation, int sprite)
+{
+    if (animation < 0 || animation >= character.animations.size())
+    {
+        printf("Selected animation does not exist!");
+        return false;
+    }
+    else if (sprite < 0 || sprite >= character.animations[animation].sprites.size())
+    {
+        printf("Selected sprite does not exist!");
+        return false;
+    }
+    else
+        return true;
+}
+
+bool ValidateCharacter::ValidateHitbox(Character character, int animation, int sprite, int hitbox)
+{
+    if (animation < 0 || animation >= character.animations.size())
+    {
+        printf("Selected animation does not exist!");
+        return false;
+    }
+    else if (sprite < 0 || sprite >= character.animations[animation].sprites.size())
+    {
+        printf("Selected sprite does not exist!");
+        return false;
+    }
+    else if (hitbox < 0 || hitbox >= character.animations[animation].sprites[sprite].hitboxes.size())
+    {
+        printf("Selected hitbox does not exist!");
+        return false;
+    }
+    else
+        return true;
+}
+
+#undef NONE

@@ -32,3 +32,12 @@ namespace EditCharacterWindow
     // Connections: EditSpriteState(esc, 'r' to remove hitbox)
     void EditHitboxState(int animation, int sprite, int hitbox);
 };
+
+// Makes sure that the input values given are valid
+namespace ValidateCharacter
+{
+    bool ValidateSpriteSheet(CharacterTypes::Character character, int spriteSheet);
+    bool ValidateAnimation(CharacterTypes::Character character, int animation);
+    bool ValidateSprite(CharacterTypes::Character character, int animation, int sprite);
+    bool ValidateHitbox(CharacterTypes::Character character, int animation, int sprite, int hitbox);
+};
