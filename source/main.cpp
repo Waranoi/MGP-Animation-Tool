@@ -4,6 +4,8 @@
 #include "character/Character.h"
 #include <fstream>
 #include <iomanip>
+#include "StateMediator.h"
+#include "SelectCharacterWindow.h"
 
 using namespace CharacterTypes;
 using namespace std;
@@ -78,6 +80,21 @@ void Set_matrix_rot(float radians, float (&matrix)[16])
 	matrix[10] = mCos;
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	StateMediator::SendKeyboardEvent(window, key, scancode, action, mods);
+}
+
+void mouse_btn_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	StateMediator::SendMouseBtnEvent(window, button, action, mods);
+}
+
+void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	StateMediator::SendMousePosEvent(window, xpos, ypos);
+}
+
 bool Setup()
 {
 	//Initialize GLFW and create a window
@@ -88,7 +105,15 @@ bool Setup()
 		scanf("%*s");
 		return false;
 	}
-	
+
+	//Register inputs
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mouse_btn_callback);
+	glfwSetCursorPosCallback(window, mouse_pos_callback);
+
+	//Set startup state
+	SelectCharacterWindow::SelectCharacterState();
+
 	//Setup vertex shader
 	vs_int = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vs_int, 1, &vs, NULL);

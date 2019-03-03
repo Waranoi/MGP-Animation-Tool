@@ -8,15 +8,17 @@
 using namespace CharacterTypes;
 using namespace ValidateCharacter;
 
+Character EditCharacterWindow::character;
+
 void EditCharacterWindow::EditCharacterState(Character target)
 {
     character = target;
 
-    printf("State: Edit Character");
-    printf("A: Select animation");
-    printf("S: Select sprite sheet");
-    printf("N: Create new animation or sprite sheet");
-    printf("L: List all sprite sheets and animations");
+    printf("State: Edit Character\n");
+    printf("A: Select animation\n");
+    printf("S: Select sprite sheet\n");
+    printf("N: Create new animation or sprite sheet\n");
+    printf("L: List all sprite sheets and animations\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -56,16 +58,16 @@ void EditCharacterWindow::EditCharacterState(Character target)
         else if (key == GLFW_KEY_L && action == GLFW_PRESS)
         {
             // List all sprite sheets and animations
-            printf("List of sprite sheets:");
+            printf("List of sprite sheets:\n");
             for (int i = 0; i < character.spriteSheets.size(); i++)
             {
-                printf("%d. %s", i, character.spriteSheets[i]->name);
+                printf("%d. %s\n", i, character.spriteSheets[i]->name);
             }
 
-            printf("----\nList of animations:");
+            printf("----\nList of animations:\n");
             for (int i = 0; i < character.spriteSheets.size(); i++)
             {
-                printf("%d. %s", i, character.animations[i].name);
+                printf("%d. %s\n", i, character.animations[i].name);
             }
         }
     };
@@ -82,6 +84,10 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
 {
     if (!ValidateSpriteSheet(character, spriteSheet))
         return;
+
+    printf("State: Edit Sprite Sheet\n");
+    printf("R: Remove sprite sheet\n");
+    printf("ESC: Go to Edit Character state\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -110,6 +116,10 @@ void EditCharacterWindow::PlayAnimationState(int animation)
 {
     if (!ValidateAnimation(character, animation))
         return;
+
+    printf("State: Play Animation\n");
+    printf("E: Edit animation\n");
+    printf("ESC: Go to Edit Character state\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -145,14 +155,14 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
     else if (!ValidateSprite(character, animation, sprite))
         return;
         
-    printf("State: Edit Animation");
-    printf("P: Playback animation");
-    printf("E: Select sprite");
-    printf("Right arrow: Next sprite");
-    printf("Left arrow: Prev sprite");
-    printf("N: Create new sprite");
-    printf("R: Remove animation");
-    printf("ESC: Go to Edit Character state");
+    printf("State: Edit Animation\n");
+    printf("P: Playback animation\n");
+    printf("E: Select sprite\n");
+    printf("Right arrow: Next sprite\n");
+    printf("Left arrow: Prev sprite\n");
+    printf("N: Create new sprite\n");
+    printf("R: Remove animation\n");
+    printf("ESC: Go to Edit Character state\n");
     
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation, sprite] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -222,13 +232,13 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
     else if (!ValidateHitbox(character, animation, sprite, hitbox))
         return;
         
-    printf("State: Edit Sprite");
-    printf("E: Select hitbox");
-    printf("Right arrow: Next hitbox");
-    printf("Left arrow: Prev hitbox");
-    printf("N: Create new hitbox");
-    printf("R: Remove sprite");
-    printf("ESC: Go to Edit Animation state");
+    printf("State: Edit Sprite\n");
+    printf("E: Select hitbox\n");
+    printf("Right arrow: Next hitbox\n");
+    printf("Left arrow: Prev hitbox\n");
+    printf("N: Create new hitbox\n");
+    printf("R: Remove sprite\n");
+    printf("ESC: Go to Edit Animation state\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation, sprite, hitbox] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -290,12 +300,12 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
     if (!ValidateHitbox(character, animation, sprite, hitbox))
         return;
         
-    printf("State: Edit Hitbox");
-    printf("Left click: Drag the corners to change the dimension");
-    printf("Left click: Drag the center to change the position");
-    printf("T: Set hitbox type");
-    printf("R: Remove hitbox");
-    printf("ESC: Go to Edit Sprite state");
+    printf("State: Edit Hitbox\n");
+    printf("Left click: Drag the corners to change the dimension\n");
+    printf("Left click: Drag the center to change the position\n");
+    printf("T: Set hitbox type\n");
+    printf("R: Remove hitbox\n");
+    printf("ESC: Go to Edit Sprite state\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation, sprite, hitbox] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -355,7 +365,7 @@ bool ValidateCharacter::ValidateSpriteSheet(Character character, int spriteSheet
 {
     if (spriteSheet < 0 || spriteSheet >= character.spriteSheets.size())
     {
-        printf("Selected sprite sheet does not exist!");
+        printf("Selected sprite sheet does not exist!\n");
         return false;
     }
     else
@@ -366,7 +376,7 @@ bool ValidateCharacter::ValidateAnimation(Character character, int animation)
 {
     if (animation < 0 || animation >= character.animations.size())
     {
-        printf("Selected animation does not exist!");
+        printf("Selected animation does not exist!\n");
         return false;
     }
     else
@@ -377,12 +387,12 @@ bool ValidateCharacter::ValidateSprite(Character character, int animation, int s
 {
     if (animation < 0 || animation >= character.animations.size())
     {
-        printf("Selected animation does not exist!");
+        printf("Selected animation does not exist!\n");
         return false;
     }
     else if (sprite < 0 || sprite >= character.animations[animation].sprites.size())
     {
-        printf("Selected sprite does not exist!");
+        printf("Selected sprite does not exist!\n");
         return false;
     }
     else
@@ -393,17 +403,17 @@ bool ValidateCharacter::ValidateHitbox(Character character, int animation, int s
 {
     if (animation < 0 || animation >= character.animations.size())
     {
-        printf("Selected animation does not exist!");
+        printf("Selected animation does not exist!\n");
         return false;
     }
     else if (sprite < 0 || sprite >= character.animations[animation].sprites.size())
     {
-        printf("Selected sprite does not exist!");
+        printf("Selected sprite does not exist!\n");
         return false;
     }
     else if (hitbox < 0 || hitbox >= character.animations[animation].sprites[sprite].hitboxes.size())
     {
-        printf("Selected hitbox does not exist!");
+        printf("Selected hitbox does not exist!\n");
         return false;
     }
     else

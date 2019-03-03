@@ -94,4 +94,7 @@ namespace CharacterTypes
     // Serialize Character
     void to_json(nlohmann::json& j, const Character& c);
     void from_json(const nlohmann::json& j, Character& c);
+
+    // Return current version of the Character format
+    Version LatestCharacterVersion();
 };

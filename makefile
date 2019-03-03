@@ -9,7 +9,7 @@ CXXSRCS := source/vmath-0.13/src/vmath.cpp
 INCLUDE := -Isource/core/Window/glfw-3.2.1.bin.WIN64/include -Isource/core/Window/glad/include -Isource/vmath-0.13/src
 
 LDIR := -Lsource/core/Window/glfw-3.2.1.bin.WIN64/lib-mingw-w64
-LIBS := -lglfw3 -lopengl32 -lgdi32
+LIBS := -lglfw3 -lopengl32 -lgdi32 -lcomdlg32 -lole32
 
 ########## DO NOT EDIT ANYTHING BELOW THIS ##########
 ########## DO NOT EDIT ANYTHING BELOW THIS ##########

@@ -1,6 +1,7 @@
 #include "Character.h"
 
 using nlohmann::json;
+using namespace CharacterTypes;
 
 // Serialize Version
 void CharacterTypes::to_json(json& j, const Version& v)
@@ -80,4 +81,9 @@ void CharacterTypes::from_json(const json& j, Character& c)
     j.at("fps").get_to(c.fps);
     j.at("name").get_to(c.name);
     j.at("animations").get_to(c.animations);
+}
+
+Version CharacterTypes::LatestCharacterVersion()
+{
+    return { 1, 0, 0 };
 }

@@ -4,7 +4,7 @@
 namespace EditCharacterWindow
 {
     // The character being edited
-    CharacterTypes::Character character;
+    extern CharacterTypes::Character character;
 
     // The state used to enter this Window, the 'character' value will be replaced by the 'target' value.
     // Features: Edit name of character, edit fps of animations, create new animations/sprite sheets, print list of animations/sprite sheets, select animation/sprite sheet.
