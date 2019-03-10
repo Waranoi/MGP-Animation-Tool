@@ -27,14 +27,16 @@ void EditCharacterWindow::EditCharacterState(Character target)
             // Select animation and go to EditAnimationState
             printf("Select animation (-1 to cancel) --> ");
             int selected = ConsoleUtils::GetIntegerInput(-1, character.animations.size()-1);
-            EditAnimationState(selected, 0);
+            if (selected != -1)
+                EditAnimationState(selected, 0);
         }
         else if (key == GLFW_KEY_S && action == GLFW_PRESS)
         {
             // Select sprite sheet and go to EditSpriteSheetState
             printf("Select sprite sheet (-1 to cancel) --> ");
             int selected = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
-            EditSpriteSheetState(selected);
+            if (selected != -1)
+                EditSpriteSheetState(selected);
         }
         else if (key == GLFW_KEY_N && action == GLFW_PRESS)
         {
