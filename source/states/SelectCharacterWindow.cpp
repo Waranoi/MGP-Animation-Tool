@@ -14,9 +14,9 @@ using namespace CharacterTypes;
 
 void SelectCharacterWindow::SelectCharacterState()
 {
-    printf("State: Select Character\n");
+    printf("\nState: Select Character\n");
     printf("N: Create new Character\n");
-    printf("L: Load an existing Character\n");
+    printf("L: Load an existing Character\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [] (GLFWwindow* window, int key, int scancode, int action, int mods) {

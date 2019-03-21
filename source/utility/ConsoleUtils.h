@@ -27,7 +27,7 @@ inline int ConsoleUtils::GetIntegerInput()
         if (myStream >> myNumber)
             break;
 
-        std::cout << "Invalid number, please try again :" << input << ":" << std::endl << std::endl;
+        std::cout << '"' << input << '"' << " is not a valid number" << std::endl;
     }
 
     return myNumber;

@@ -14,11 +14,11 @@ void EditCharacterWindow::EditCharacterState(Character target)
 {
     character = target;
 
-    printf("State: Edit Character\n");
+    printf("\nState: Edit Character\n");
     printf("A: Select animation\n");
     printf("S: Select sprite sheet\n");
     printf("N: Create new animation or sprite sheet\n");
-    printf("L: List all sprite sheets and animations\n");
+    printf("L: List all sprite sheets and animations\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -29,6 +29,8 @@ void EditCharacterWindow::EditCharacterState(Character target)
             int selected = ConsoleUtils::GetIntegerInput(-1, character.animations.size()-1);
             if (selected != -1)
                 EditAnimationState(selected, 0);
+            else
+                printf("Cancelled select animation\n\n");
         }
         else if (key == GLFW_KEY_S && action == GLFW_PRESS)
         {
@@ -37,6 +39,8 @@ void EditCharacterWindow::EditCharacterState(Character target)
             int selected = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
             if (selected != -1)
                 EditSpriteSheetState(selected);
+            else
+                printf("Cancelled select sprite sheet\n\n");
         }
         else if (key == GLFW_KEY_N && action == GLFW_PRESS)
         {
@@ -46,6 +50,7 @@ void EditCharacterWindow::EditCharacterState(Character target)
             switch (selected)
             {
                 case -1:
+                    printf("Cancelled create new resource\n\n");
                     return;
                 case 0:
                     character.animations.emplace_back();
@@ -87,9 +92,9 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
     if (!ValidateSpriteSheet(character, spriteSheet))
         return;
 
-    printf("State: Edit Sprite Sheet\n");
+    printf("\nState: Edit Sprite Sheet\n");
     printf("R: Remove sprite sheet\n");
-    printf("ESC: Go to Edit Character state\n");
+    printf("ESC: Go to Edit Character state\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -119,9 +124,9 @@ void EditCharacterWindow::PlayAnimationState(int animation)
     if (!ValidateAnimation(character, animation))
         return;
 
-    printf("State: Play Animation\n");
+    printf("\nState: Play Animation\n");
     printf("E: Edit animation\n");
-    printf("ESC: Go to Edit Character state\n");
+    printf("ESC: Go to Edit Character state\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -157,14 +162,14 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
     else if (!ValidateSprite(character, animation, sprite))
         return;
         
-    printf("State: Edit Animation\n");
+    printf("\nState: Edit Animation\n");
     printf("P: Playback animation\n");
     printf("E: Select sprite\n");
     printf("Right arrow: Next sprite\n");
     printf("Left arrow: Prev sprite\n");
     printf("N: Create new sprite\n");
     printf("R: Remove animation\n");
-    printf("ESC: Go to Edit Character state\n");
+    printf("ESC: Go to Edit Character state\n\n");
     
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation, sprite] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -234,13 +239,13 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
     else if (!ValidateHitbox(character, animation, sprite, hitbox))
         return;
         
-    printf("State: Edit Sprite\n");
+    printf("\nState: Edit Sprite\n");
     printf("E: Select hitbox\n");
     printf("Right arrow: Next hitbox\n");
     printf("Left arrow: Prev hitbox\n");
     printf("N: Create new hitbox\n");
     printf("R: Remove sprite\n");
-    printf("ESC: Go to Edit Animation state\n");
+    printf("ESC: Go to Edit Animation state\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation, sprite, hitbox] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -302,12 +307,12 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
     if (!ValidateHitbox(character, animation, sprite, hitbox))
         return;
         
-    printf("State: Edit Hitbox\n");
+    printf("\nState: Edit Hitbox\n");
     printf("Left click: Drag the corners to change the dimension\n");
     printf("Left click: Drag the center to change the position\n");
     printf("T: Set hitbox type\n");
     printf("R: Remove hitbox\n");
-    printf("ESC: Go to Edit Sprite state\n");
+    printf("ESC: Go to Edit Sprite state\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [animation, sprite, hitbox] (GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -319,6 +324,7 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
             switch (selected)
             {
                 case -1:
+                    printf("Cancelled set hitbox type\n\n");
                     return;
                 case 0:
                     character.animations[animation].sprites[sprite].hitboxes[hitbox].type = HitboxType::HITBOX;
