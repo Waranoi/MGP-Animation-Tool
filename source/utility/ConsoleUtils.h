@@ -13,12 +13,11 @@ namespace ConsoleUtils
 
 inline int ConsoleUtils::GetIntegerInput()
 {
-    std::cin.clear();
     // How to get a number.
-    std::string input = "";
     int myNumber = 0;
     
     while (true) {
+        std::string input = "";
         std::cout << "Please enter a valid number: ";
         while (input.length() == 0) 
             std::getline(std::cin, input);
@@ -28,10 +27,9 @@ inline int ConsoleUtils::GetIntegerInput()
         if (myStream >> myNumber)
             break;
 
-        std::cout << "Invalid number, please try again :" << input << ":" << std::endl;
+        std::cout << "Invalid number, please try again :" << input << ":" << std::endl << std::endl;
     }
 
-    std::cout << "You entered: " << myNumber << std::endl << std::endl;
     return myNumber;
 }
 
