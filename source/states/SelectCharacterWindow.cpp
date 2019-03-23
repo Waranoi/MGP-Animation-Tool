@@ -42,8 +42,8 @@ void SelectCharacterWindow::SelectCharacterState()
                 return;
             }
 
-            // Get length of name
-            int nameLen = strlen(name);
+            // Get length of name + null terminator
+            int nameLen = strlen(name) + 1;
 
             // Copy parent folder path to character folder path
             int charFolderLen = 0;
@@ -68,7 +68,7 @@ void SelectCharacterWindow::SelectCharacterState()
             }
 
             // Copy name to the end of the character path
-            for (int i = 0; i < nameLen; i++)
+            for (int i = 0; i <= nameLen; i++)
             {
                 charFolder[parentFolderLen + i] = name[i];
             }
@@ -76,6 +76,7 @@ void SelectCharacterWindow::SelectCharacterState()
             // Handle create directory failing
             if (!CreateDirectoryA(charFolder, NULL))
             {
+                printf("Failed to create directory %s\n", charFolder);
                 DWORD err = GetLastError();
                 if (err == ERROR_ALREADY_EXISTS)
                 {
@@ -84,7 +85,7 @@ void SelectCharacterWindow::SelectCharacterState()
                 }
                 else
                 {
-                    printf("Create directory failed with error %d\n", err);
+                    printf("Error %d\n", err);
                     return;
                 }
             }

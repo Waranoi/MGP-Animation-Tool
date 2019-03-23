@@ -76,6 +76,7 @@ void EditCharacterWindow::EditCharacterState(Character target)
             {
                 printf("%d. %s\n", i, character.animations[i].name);
             }
+            printf("\n");
         }
     };
 
