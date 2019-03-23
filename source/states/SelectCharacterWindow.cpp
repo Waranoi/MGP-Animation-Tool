@@ -76,14 +76,15 @@ void SelectCharacterWindow::SelectCharacterState()
             // Handle create directory failing
             if (!CreateDirectoryA(charFolder, NULL))
             {
-                if (GetLastError() == ERROR_ALREADY_EXISTS)
+                DWORD err = GetLastError();
+                if (err == ERROR_ALREADY_EXISTS)
                 {
                     printf("Folder already exists\n");
                     return;
                 }
                 else
                 {
-                    printf("Create directory failed\n");
+                    printf("Create directory failed with error %d\n", err);
                     return;
                 }
             }
