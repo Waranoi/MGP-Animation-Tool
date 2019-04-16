@@ -90,8 +90,9 @@ void SelectCharacterWindow::SelectCharacterState()
                 }
             }
 
-            int extensionLen = 6;
+            const int extensionLen = 6;
             char extension[extensionLen] = ".json";
+            printf("%s\n", extension);
             // Check that character folder length + name length + .json extension doesn't exceed max length
             if (charFolderLen + nameLen + extensionLen > maxLen)
             {
@@ -123,7 +124,8 @@ void SelectCharacterWindow::SelectCharacterState()
             // Copy extension to the end of the filepath
             for (int i = 0; i < extensionLen; i++)
             {
-                filepath[charFolderLen + nameLen + i] = extension[i];
+                // nameLen -1 to overwrite null terminator in name
+                filepath[charFolderLen + nameLen - 1 + i] = extension[i];
             }
 
             printf("filepath: %s\n", filepath);
