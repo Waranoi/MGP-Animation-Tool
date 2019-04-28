@@ -92,7 +92,6 @@ void SelectCharacterWindow::SelectCharacterState()
 
             const int extensionLen = 6;
             char extension[extensionLen] = ".json";
-            printf("%s\n", extension);
             // Check that character folder length + name length + .json extension doesn't exceed max length
             if (charFolderLen + nameLen + extensionLen > maxLen)
             {

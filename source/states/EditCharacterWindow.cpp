@@ -72,7 +72,7 @@ void EditCharacterWindow::EditCharacterState(Character target)
             }
 
             printf("----\nList of animations:\n");
-            for (int i = 0; i < character.spriteSheets.size(); i++)
+            for (int i = 0; i < character.animations.size(); i++)
             {
                 printf("%d. %s\n", i, character.animations[i].name);
             }
