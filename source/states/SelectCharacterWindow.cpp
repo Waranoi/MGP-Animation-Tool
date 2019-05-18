@@ -90,8 +90,8 @@ void SelectCharacterWindow::SelectCharacterState()
                 }
             }
 
-            const int extensionLen = 6;
-            char extension[extensionLen] = ".json";
+            const int extensionLen = 9;
+            char extension[extensionLen] = ".mgpchar";
             // Check that character folder length + name length + .json extension doesn't exceed max length
             if (charFolderLen + nameLen + extensionLen > maxLen)
             {
@@ -145,7 +145,16 @@ void SelectCharacterWindow::SelectCharacterState()
         else if (key == GLFW_KEY_L && action == GLFW_PRESS)
         {
             // Select sprite sheet and go to EditSpriteSheetState
-            printf("This feature does not exist yet\n");
+            char const * filterPatterns[1] = { "*.mgpchar" };
+            char const * loadCharFilepath = tinyfd_openFileDialog("Character location", "", 1, filterPatterns, NULL, 0);
+
+            std::ifstream infile(loadCharFilepath);
+            nlohmann::json j;
+            infile >> j;
+            infile.close();
+            Character c = j;
+            
+            EditCharacterWindow::EditCharacterState(c);
         }
     };
 
