@@ -18,6 +18,29 @@ void CharacterTypes::from_json(const json& j, Version& v)
     j.at("patch").get_to(v.patch);
 }
 
+// Serialize Sprite Sheet
+void CharacterTypes::to_json(json& j, const std::shared_ptr<SpriteSheet>& s)
+{
+    if (s.get()) {
+        j["name"] = s->name;
+        j["sourceLocation"] = s->sourceLocation;
+    } else {
+        j = nullptr;
+    }
+}
+
+void CharacterTypes::from_json(const json& j, std::shared_ptr<SpriteSheet>& s)
+{
+    SpriteSheet *newSheet = new SpriteSheet();    
+    j.at("name").get_to(newSheet->name);
+    j.at("sourceLocation").get_to(newSheet->sourceLocation);
+    
+    std::shared_ptr<SpriteSheet> tempPtr(newSheet);
+    s.swap(tempPtr);
+
+    // TODO load sprite sheet data below
+}
+
 // Serialize Hitbox
 void CharacterTypes::to_json(json& j, const Hitbox& h)
 {
@@ -72,6 +95,7 @@ void CharacterTypes::to_json(json& j, const Character& c)
     j["version"] = c.version;
     j["fps"] = c.fps;
     j["name"] = c.name;
+    j["spriteSheets"] = c.spriteSheets;
     j["animations"] = c.animations;
 }
 
@@ -80,6 +104,7 @@ void CharacterTypes::from_json(const json& j, Character& c)
     j.at("version").get_to(c.version);
     j.at("fps").get_to(c.fps);
     j.at("name").get_to(c.name);
+    j.at("spriteSheets").get_to(c.spriteSheets);
     j.at("animations").get_to(c.animations);
 }
 

@@ -127,6 +127,7 @@ void SelectCharacterWindow::SelectCharacterState()
                 filepath[charFolderLen + nameLen - 1 + i] = extension[i];
             }
 
+
             printf("filepath: %s\n", filepath);
         	Character c;
         	c.version = LatestCharacterVersion();
@@ -140,7 +141,8 @@ void SelectCharacterWindow::SelectCharacterState()
         	outfile << j.dump(4);
            	outfile.close();
 
-            EditCharacterWindow::EditCharacterState(c);
+            std::string filepathString(filepath);
+            EditCharacterWindow::EditCharacterState(c, filepathString);
         }
         else if (key == GLFW_KEY_L && action == GLFW_PRESS)
         {
@@ -154,7 +156,8 @@ void SelectCharacterWindow::SelectCharacterState()
             infile.close();
             Character c = j;
             
-            EditCharacterWindow::EditCharacterState(c);
+            std::string filepathString(loadCharFilepath);
+            EditCharacterWindow::EditCharacterState(c, filepathString);
         }
     };
 

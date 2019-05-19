@@ -40,6 +40,9 @@ namespace CharacterTypes
         // Name of the sprite sheet, should be unique to the character
         std::string name;
 
+        // Filepath to the sprite sheet source
+        std::string sourceLocation;
+
         // Byte array and array size of the sprite sheet
         char *data;
         int size;
@@ -76,20 +79,24 @@ namespace CharacterTypes
     };
 
     // Serialize Version
-    void to_json(nlohmann::json& j, const Version& c);
-    void from_json(const nlohmann::json& j, Version& c);
+    void to_json(nlohmann::json& j, const Version& v);
+    void from_json(const nlohmann::json& j, Version& v);
+
+    // Serialize Sprite Sheet
+    void to_json(nlohmann::json& j, const std::shared_ptr<SpriteSheet>& s);
+    void from_json(const nlohmann::json& j, std::shared_ptr<SpriteSheet>& s);
 
     // Serialize Hitbox
-    void to_json(nlohmann::json& j, const Hitbox& c);
-    void from_json(const nlohmann::json& j, Hitbox& c);
+    void to_json(nlohmann::json& j, const Hitbox& h);
+    void from_json(const nlohmann::json& j, Hitbox& h);
 
     // Serialize Sprite
-    void to_json(nlohmann::json& j, const Sprite& c);
-    void from_json(const nlohmann::json& j, Sprite& c);
+    void to_json(nlohmann::json& j, const Sprite& s);
+    void from_json(const nlohmann::json& j, Sprite& s);
 
     // Serialize Animation
-    void to_json(nlohmann::json& j, const Animation& c);
-    void from_json(const nlohmann::json& j, Animation& c);
+    void to_json(nlohmann::json& j, const Animation& a);
+    void from_json(const nlohmann::json& j, Animation& a);
 
     // Serialize Character
     void to_json(nlohmann::json& j, const Character& c);

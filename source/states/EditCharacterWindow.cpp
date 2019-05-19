@@ -2,6 +2,7 @@
 #include "StateMediator.h"
 #include "ConsoleUtils.h"
 #include <stdio.h>
+#include <fstream>
 
 #define NONE -1
 
@@ -9,10 +10,12 @@ using namespace CharacterTypes;
 using namespace ValidateCharacter;
 
 Character EditCharacterWindow::character;
+std::string EditCharacterWindow::saveLocation("");
 
-void EditCharacterWindow::EditCharacterState(Character target)
+void EditCharacterWindow::EditCharacterState(Character target, std::string targetFilepath)
 {
     character = target;
+    saveLocation = targetFilepath;
 
     printf("\nState: Edit Character\n");
     printf("A: Select animation\n");
@@ -53,13 +56,28 @@ void EditCharacterWindow::EditCharacterState(Character target)
                     printf("Cancelled create new resource\n\n");
                     return;
                 case 0:
-                    character.animations.emplace_back();
+                {
+                    Animation animation;
+                    animation.name = "animation" + std::to_string(character.animations.size());
+
+                    character.animations.emplace_back(animation);
+                    SaveCharacter();
                     EditAnimationState(character.animations.size()-1, 0);
                     break;
+                }
                 case 1:
-                    character.spriteSheets.emplace_back();
+                {
+                    SpriteSheet *newSheet = new SpriteSheet();
+                    newSheet->name = "sheet" + std::to_string(character.spriteSheets.size());
+                    newSheet->sourceLocation = "none";
+                    newSheet->data = nullptr;
+                    newSheet->size = 0;
+
+                    character.spriteSheets.emplace_back(newSheet);
+                    SaveCharacter();
                     EditSpriteSheetState(character.spriteSheets.size()-1);
                     break;
+                }
             }
         }
         else if (key == GLFW_KEY_L && action == GLFW_PRESS)
@@ -68,13 +86,13 @@ void EditCharacterWindow::EditCharacterState(Character target)
             printf("List of sprite sheets:\n");
             for (int i = 0; i < character.spriteSheets.size(); i++)
             {
-                printf("%d. %s\n", i, character.spriteSheets[i]->name);
+                printf("%d. %s\n", i, character.spriteSheets[i]->name.c_str());
             }
 
             printf("----\nList of animations:\n");
             for (int i = 0; i < character.animations.size(); i++)
             {
-                printf("%d. %s\n", i, character.animations[i].name);
+                printf("%d. %s\n", i, character.animations[i].name.c_str());
             }
             printf("\n");
         }
@@ -103,12 +121,13 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
         {
             // Delete the selected sprite sheet
             character.spriteSheets.erase(character.spriteSheets.begin() + spriteSheet);
-            EditCharacterState(character);
+            SaveCharacter();
+            EditCharacterState(character, saveLocation);
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
             // Go to EditCharacterState
-            EditCharacterState(character);
+            EditCharacterState(character, saveLocation);
         }
     };
 
@@ -133,13 +152,13 @@ void EditCharacterWindow::PlayAnimationState(int animation)
     KeyboardCallback newKeyboardEvent = [animation] (GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_E && action == GLFW_PRESS)
         {
-            // This is a bug
+            // This is a bug TODO
             EditAnimationState(animation, 0);
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
             // Go to EditCharacterState
-            EditCharacterState(character);
+            EditCharacterState(character, saveLocation);
         }
     };
 
@@ -205,18 +224,20 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
             // Create a new sprite
             int next = character.animations[animation].sprites.size();
             character.animations[animation].sprites.emplace_back();
+            SaveCharacter();
             EditAnimationState(animation, next);
         }
         else if (key == GLFW_KEY_R && action == GLFW_PRESS)
         {
             // Delete the selected animation
             character.animations.erase(character.animations.begin() + animation);
-            EditCharacterState(character);
+            SaveCharacter();
+            EditCharacterState(character, saveLocation);
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
             // Go to EditCharacterState
-            EditCharacterState(character);
+            EditCharacterState(character, saveLocation);
         }
     };
 
@@ -276,12 +297,14 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
             // Create a new hitbox
             int next = character.animations[animation].sprites[sprite].hitboxes.size();
             character.animations[animation].sprites[sprite].hitboxes.emplace_back();
+            SaveCharacter();
             EditSpriteState(animation, sprite, next);
         }
         else if (key == GLFW_KEY_R && action == GLFW_PRESS)
         {
             // Delete the selected sprite
             character.animations[animation].sprites.erase(character.animations[animation].sprites.begin() + sprite);
+            SaveCharacter();
 
             if (sprite < character.animations[animation].sprites.size())
                 EditAnimationState(animation, sprite);
@@ -329,9 +352,11 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
                     return;
                 case 0:
                     character.animations[animation].sprites[sprite].hitboxes[hitbox].type = HitboxType::HITBOX;
+                    SaveCharacter();
                     break;
                 case 1:
                     character.animations[animation].sprites[sprite].hitboxes[hitbox].type = HitboxType::HURTBOX;
+                    SaveCharacter();
                     break;
             }
         }
@@ -339,6 +364,7 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
         {
             // Delete the selected hitbox
             character.animations[animation].sprites[sprite].hitboxes.erase(character.animations[animation].sprites[sprite].hitboxes.begin() + hitbox);
+            SaveCharacter();
 
             if (hitbox < character.animations[animation].sprites[hitbox].hitboxes.size())
                 EditSpriteState(animation, sprite, hitbox);
@@ -368,6 +394,15 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
     };
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, newMouseBtnEvent, newMousePosEvent, newDrawEvent);
+}
+
+void EditCharacterWindow::SaveCharacter()
+{
+    nlohmann::json j = character;
+    std::ofstream outfile;
+    outfile.open(saveLocation, std::ios::out | std::ios::trunc);
+    outfile << j.dump(4);
+    outfile.close();
 }
 
 bool ValidateCharacter::ValidateSpriteSheet(Character character, int spriteSheet)
