@@ -24,6 +24,10 @@ void CharacterTypes::to_json(json& j, const std::shared_ptr<SpriteSheet>& s)
     if (s.get()) {
         j["name"] = s->name;
         j["sourceLocation"] = s->sourceLocation;
+        j["width"] = s->width;
+        j["height"] = s->height;
+        j["cell width"] = s->cellWidth;
+        j["cell weight"] = s->cellHeight;
     } else {
         j = nullptr;
     }

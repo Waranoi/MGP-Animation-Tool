@@ -3,6 +3,10 @@
 #include "ConsoleUtils.h"
 #include <stdio.h>
 #include <fstream>
+extern "C"
+{
+    #include "tinyfiledialogs.h"
+}
 
 #define NONE -1
 
@@ -67,15 +71,81 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                 }
                 case 1:
                 {
-                    SpriteSheet *newSheet = new SpriteSheet();
-                    newSheet->name = "sheet" + std::to_string(character.spriteSheets.size());
-                    newSheet->sourceLocation = "none";
-                    newSheet->data = nullptr;
-                    newSheet->size = 0;
+                    SpriteSheet newSpriteSheet;
+                    newSpriteSheet.width = 0;
+                    newSpriteSheet.height = 0;
+                    newSpriteSheet.cellWidth = 0;
+                    newSpriteSheet.cellHeight = 0;
 
-                    character.spriteSheets.emplace_back(newSheet);
-                    SaveCharacter();
-                    EditSpriteSheetState(character.spriteSheets.size()-1);
+                    // Select import target
+                    char const * filterPatterns[2] = { "*.jpeg", "*.png" };
+                    char const * addSpriteSheetFilepath = tinyfd_openFileDialog("Select import target", "", 2, filterPatterns, NULL, 0);
+
+                    if (addSpriteSheetFilepath == NULL)
+                    {
+                        printf("Sprite sheet import aborted\n");
+                        break;
+                    }
+                    
+                    // Get filename, copy pasted from https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
+                    std::string file(addSpriteSheetFilepath);
+                    const size_t last_slash_idx = file.find_last_of("\\/");
+                    if (std::string::npos != last_slash_idx)
+                    {
+                        file.erase(0, last_slash_idx + 1);
+                    }
+                    
+                    std::string filename = file;
+                    // Remove extension if present.
+                    const size_t period_idx = filename.rfind('.');
+                    if (std::string::npos != period_idx)
+                    {
+                        filename.erase(period_idx);
+                    }
+
+                    // Set sprite sheet name
+                    newSpriteSheet.name = filename;
+                    newSpriteSheet.sourceLocation = "sprite sheets/" + file;
+
+                    // open image file
+                    std::ifstream infile(addSpriteSheetFilepath, std::ios::binary);
+
+                    // read data to buffer vector
+                    std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
+
+                    //close image file
+                    infile.close();
+
+                    // copy image data to sprite sheet struct
+                    newSpriteSheet.size = buffer.size();
+                    newSpriteSheet.data = new char[newSpriteSheet.size];
+                    for (int i = 0; i < newSpriteSheet.size; i++)
+                    {
+                        newSpriteSheet.data[i] = buffer[i];
+                    }
+
+                    // get save location directory
+                    std::string mpgCharRoot = saveLocation;
+                    const size_t last_slash_idx_root = mpgCharRoot.find_last_of("\\/");
+                    if (std::string::npos != last_slash_idx_root)
+                    {
+                        mpgCharRoot.erase(mpgCharRoot.begin() + last_slash_idx_root + 1, mpgCharRoot.end());
+                    }
+
+                    // save image locally in the mpgchar folder
+                    std::ofstream copyTarget(mpgCharRoot + newSpriteSheet.sourceLocation, std::ios::binary);
+                    copyTarget.write(newSpriteSheet.data, newSpriteSheet.size);
+                    copyTarget.close();
+                    
+                    // SpriteSheet *newSheet = new SpriteSheet();
+                    // newSheet->name = "sheet" + std::to_string(character.spriteSheets.size());
+                    // newSheet->sourceLocation = "none";
+                    // newSheet->data = nullptr;
+                    // newSheet->size = 0;
+
+                    // character.spriteSheets.emplace_back(newSheet);
+                    // SaveCharacter();
+                    // EditSpriteSheetState(character.spriteSheets.size()-1);
                     break;
                 }
             }

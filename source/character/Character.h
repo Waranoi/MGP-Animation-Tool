@@ -43,6 +43,18 @@ namespace CharacterTypes
         // Filepath to the sprite sheet source
         std::string sourceLocation;
 
+        // Width of sprite sheet
+        int width;
+        
+        // Height of sprite sheet
+        int height;
+
+        // Width of sprite cell
+        int cellWidth;
+
+        // Height of sprite cell
+        int cellHeight;
+
         // Byte array and array size of the sprite sheet
         char *data;
         int size;

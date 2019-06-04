@@ -1,1 +1,2 @@
-Change user input from c style to c++ style with std::string so that input buffers don't have to be manually flushed while staying safe from buffer overflows.
+Add sprite import. It will copy a sprite sheet to a sprite sheet folder inside of the character folder.
+Remove external console and replace it with a console within the opengl window. https://github.com/ocornut/imgui
