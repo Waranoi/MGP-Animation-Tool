@@ -3,6 +3,7 @@
 #include "ConsoleUtils.h"
 #include <stdio.h>
 #include <fstream>
+#include <memory>
 extern "C"
 {
     #include "tinyfiledialogs.h"
@@ -71,11 +72,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                 }
                 case 1:
                 {
-                    SpriteSheet newSpriteSheet;
-                    newSpriteSheet.width = 0;
-                    newSpriteSheet.height = 0;
-                    newSpriteSheet.cellWidth = 0;
-                    newSpriteSheet.cellHeight = 0;
+                    std::shared_ptr<SpriteSheet> newSpriteSheet(new SpriteSheet());
 
                     // Select import target
                     char const * filterPatterns[2] = { "*.jpeg", "*.png" };
@@ -104,8 +101,24 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     }
 
                     // Set sprite sheet name
-                    newSpriteSheet.name = filename;
-                    newSpriteSheet.sourceLocation = "sprite sheets/" + file;
+                    newSpriteSheet->name = filename;
+                    newSpriteSheet->sourceLocation = "sprite sheets/" + file;
+
+                    // get save location directory
+                    std::string mpgCharRoot = saveLocation;
+                    const size_t last_slash_idx_root = mpgCharRoot.find_last_of("\\/");
+                    if (std::string::npos != last_slash_idx_root)
+                    {
+                        mpgCharRoot.erase(mpgCharRoot.begin() + last_slash_idx_root + 1, mpgCharRoot.end());
+                    }
+
+                    // Check if imported image will conflict with existing image
+                    std::ifstream copyTargetTest(mpgCharRoot + newSpriteSheet->sourceLocation, std::ios::binary);
+                    if (copyTargetTest.good())
+                    {
+                        printf("Can't import %s, a file with this name already exists\n", filename.c_str());
+                        break;
+                    }
 
                     // open image file
                     std::ifstream infile(addSpriteSheetFilepath, std::ios::binary);
@@ -117,35 +130,33 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     infile.close();
 
                     // copy image data to sprite sheet struct
-                    newSpriteSheet.size = buffer.size();
-                    newSpriteSheet.data = new char[newSpriteSheet.size];
-                    for (int i = 0; i < newSpriteSheet.size; i++)
+                    newSpriteSheet->size = buffer.size();
+                    newSpriteSheet->data = new char[newSpriteSheet->size];
+                    for (int i = 0; i < newSpriteSheet->size; i++)
                     {
-                        newSpriteSheet.data[i] = buffer[i];
-                    }
-
-                    // get save location directory
-                    std::string mpgCharRoot = saveLocation;
-                    const size_t last_slash_idx_root = mpgCharRoot.find_last_of("\\/");
-                    if (std::string::npos != last_slash_idx_root)
-                    {
-                        mpgCharRoot.erase(mpgCharRoot.begin() + last_slash_idx_root + 1, mpgCharRoot.end());
+                        newSpriteSheet->data[i] = buffer[i];
                     }
 
                     // save image locally in the mpgchar folder
-                    std::ofstream copyTarget(mpgCharRoot + newSpriteSheet.sourceLocation, std::ios::binary);
-                    copyTarget.write(newSpriteSheet.data, newSpriteSheet.size);
+                    std::ofstream copyTarget(mpgCharRoot + newSpriteSheet->sourceLocation, std::ios::binary);
+                    copyTarget.write(newSpriteSheet->data, newSpriteSheet->size);
                     copyTarget.close();
-                    
-                    // SpriteSheet *newSheet = new SpriteSheet();
-                    // newSheet->name = "sheet" + std::to_string(character.spriteSheets.size());
-                    // newSheet->sourceLocation = "none";
-                    // newSheet->data = nullptr;
-                    // newSheet->size = 0;
 
-                    // character.spriteSheets.emplace_back(newSheet);
-                    // SaveCharacter();
-                    // EditSpriteSheetState(character.spriteSheets.size()-1);
+                    printf("Set image width: ");
+                    newSpriteSheet->width = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                    printf("Set image height: ");
+                    newSpriteSheet->height = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                    printf("Set sprite sheet cell width: ");
+                    newSpriteSheet->cellWidth = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                    printf("Set sprite sheet cell height: ");
+                    newSpriteSheet->cellHeight = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                    character.spriteSheets.push_back(newSpriteSheet);
+                    SaveCharacter();
+                    EditSpriteSheetState(character.spriteSheets.size()-1);
                     break;
                 }
             }
