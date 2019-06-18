@@ -15,12 +15,12 @@ using namespace CharacterTypes;
 using namespace ValidateCharacter;
 
 Character EditCharacterWindow::character;
-std::string EditCharacterWindow::saveLocation("");
+std::string EditCharacterWindow::rootDir("");
 
-void EditCharacterWindow::EditCharacterState(Character target, std::string targetFilepath)
+void EditCharacterWindow::EditCharacterState(Character target, std::string targetRootDir)
 {
     character = target;
-    saveLocation = targetFilepath;
+    rootDir = targetRootDir;
 
     printf("\nState: Edit Character\n");
     printf("A: Select animation\n");
@@ -104,16 +104,8 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     newSpriteSheet->name = filename;
                     newSpriteSheet->sourceLocation = "sprite sheets/" + file;
 
-                    // get save location directory
-                    std::string mpgCharRoot = saveLocation;
-                    const size_t last_slash_idx_root = mpgCharRoot.find_last_of("\\/");
-                    if (std::string::npos != last_slash_idx_root)
-                    {
-                        mpgCharRoot.erase(mpgCharRoot.begin() + last_slash_idx_root + 1, mpgCharRoot.end());
-                    }
-
                     // Check if imported image will conflict with existing image
-                    std::ifstream copyTargetTest(mpgCharRoot + newSpriteSheet->sourceLocation, std::ios::binary);
+                    std::ifstream copyTargetTest(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
                     if (copyTargetTest.good())
                     {
                         printf("Can't import %s, a file with this name already exists\n", filename.c_str());
@@ -138,7 +130,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     }
 
                     // save image locally in the mpgchar folder
-                    std::ofstream copyTarget(mpgCharRoot + newSpriteSheet->sourceLocation, std::ios::binary);
+                    std::ofstream copyTarget(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
                     copyTarget.write(newSpriteSheet->data, newSpriteSheet->size);
                     copyTarget.close();
 
@@ -203,12 +195,12 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
             // Delete the selected sprite sheet
             character.spriteSheets.erase(character.spriteSheets.begin() + spriteSheet);
             SaveCharacter();
-            EditCharacterState(character, saveLocation);
+            EditCharacterState(character, rootDir);
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
             // Go to EditCharacterState
-            EditCharacterState(character, saveLocation);
+            EditCharacterState(character, rootDir);
         }
     };
 
@@ -239,7 +231,7 @@ void EditCharacterWindow::PlayAnimationState(int animation)
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
             // Go to EditCharacterState
-            EditCharacterState(character, saveLocation);
+            EditCharacterState(character, rootDir);
         }
     };
 
@@ -313,12 +305,12 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
             // Delete the selected animation
             character.animations.erase(character.animations.begin() + animation);
             SaveCharacter();
-            EditCharacterState(character, saveLocation);
+            EditCharacterState(character, rootDir);
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
             // Go to EditCharacterState
-            EditCharacterState(character, saveLocation);
+            EditCharacterState(character, rootDir);
         }
     };
 
@@ -479,9 +471,10 @@ void EditCharacterWindow::EditHitboxState(int animation, int sprite, int hitbox)
 
 void EditCharacterWindow::SaveCharacter()
 {
+    std::string characterPath = rootDir + character.name + std::string(".mgpchar");
     nlohmann::json j = character;
     std::ofstream outfile;
-    outfile.open(saveLocation, std::ios::out | std::ios::trunc);
+    outfile.open(characterPath, std::ios::out | std::ios::trunc);
     outfile << j.dump(4);
     outfile.close();
 }

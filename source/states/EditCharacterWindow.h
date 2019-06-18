@@ -6,12 +6,12 @@ namespace EditCharacterWindow
 {
     // The character being edited
     extern CharacterTypes::Character character;
-    extern std::string saveLocation;
+    extern std::string rootDir;
 
     // The state used to enter this Window, the 'character' value will be replaced by the 'target' value.
     // Features: Edit name of character, edit fps of animations, create new animations/sprite sheets, print list of animations/sprite sheets, select animation/sprite sheet.
     // Connections: EditAnimationState(a -> enter animation index or n -> new animation), EditSpriteSheetState(s -> enter sprite sheet index or n -> new sprite)
-    void EditCharacterState(CharacterTypes::Character target, std::string targetFilepath);
+    void EditCharacterState(CharacterTypes::Character target, std::string targetRootDir);
 
     // Features: Remove sprite sheet
     // Future features: Set horizontal and vertical reading direction of sprite sheet, set sprite sheet margins, set padding between cells

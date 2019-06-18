@@ -114,6 +114,9 @@ void SelectCharacterWindow::SelectCharacterState()
                     filepath[i] = charFolder[i];
             }
 
+            // Save current filepath as root directory
+            std::string rootDir(filepath, charFolderLen);
+
             // Copy name to the end of the filepath
             for (int i = 0; i < nameLen; i++)
             {
@@ -128,6 +131,7 @@ void SelectCharacterWindow::SelectCharacterState()
             }
 
 
+            printf("rootDir: %s\n", rootDir.c_str());
             printf("filepath: %s\n", filepath);
         	Character c;
         	c.version = LatestCharacterVersion();
@@ -141,8 +145,7 @@ void SelectCharacterWindow::SelectCharacterState()
         	outfile << j.dump(4);
            	outfile.close();
 
-            std::string filepathString(filepath);
-            EditCharacterWindow::EditCharacterState(c, filepathString);
+            EditCharacterWindow::EditCharacterState(c, rootDir);
         }
         else if (key == GLFW_KEY_L && action == GLFW_PRESS)
         {
@@ -156,8 +159,13 @@ void SelectCharacterWindow::SelectCharacterState()
             infile.close();
             Character c = j;
             
-            std::string filepathString(loadCharFilepath);
-            EditCharacterWindow::EditCharacterState(c, filepathString);
+            std::string rootDir(loadCharFilepath);
+            const size_t last_slash_idx_root = rootDir.find_last_of("\\/");
+            if (std::string::npos != last_slash_idx_root)
+            {
+                rootDir.erase(rootDir.begin() + last_slash_idx_root + 1, rootDir.end());
+            }
+            EditCharacterWindow::EditCharacterState(c, rootDir);
         }
     };
 
