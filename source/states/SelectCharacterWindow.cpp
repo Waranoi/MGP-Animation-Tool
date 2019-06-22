@@ -146,6 +146,7 @@ void SelectCharacterWindow::SelectCharacterState()
         	outfile << j.dump(4);
            	outfile.close();
 
+            std::replace(rootDir.begin(), rootDir.end(), '\\', '/');
             EditCharacterWindow::EditCharacterState(c, rootDir);
         }
         else if (key == GLFW_KEY_L && action == GLFW_PRESS)
@@ -192,6 +193,7 @@ void SelectCharacterWindow::SelectCharacterState()
             std::chrono::duration<float> duration2 = t2 - t1;
             std::cout << "Load finished after : " << duration2.count() << " seconds" << std::endl; 
   
+            std::replace(rootDir.begin(), rootDir.end(), '\\', '/');
             EditCharacterWindow::EditCharacterState(c, rootDir);
         }   
     };

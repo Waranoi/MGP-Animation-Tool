@@ -1,4 +1,4 @@
-Fix bug: Imported sprite sheets are not copied to the sprite sheets folder if it does not exist
+Tidy up the following fixed bug: Imported sprite sheets are not copied to the sprite sheets folder if it does not exist
 
 Add functions to manipulate sprite sheets in the program.
 

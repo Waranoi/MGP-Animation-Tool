@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <memory>
+#include <windows.h>
 extern "C"
 {
     #include "tinyfiledialogs.h"
@@ -127,6 +128,34 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     for (int i = 0; i < newSpriteSheet->size; i++)
                     {
                         newSpriteSheet->data[i] = buffer[i];
+                    }
+                    
+                    // create folders if they are missing
+                    DWORD ftyp = GetFileAttributesA((rootDir + "sprite sheets").c_str());
+                    if (ftyp == INVALID_FILE_ATTRIBUTES)
+                    {
+                        DWORD err = GetLastError();
+                        if (err == ERROR_FILE_NOT_FOUND)
+                        {
+                            if (!CreateDirectoryA((rootDir + "sprite sheets").c_str(), NULL))
+                            {
+                                // failed to create missing directory!
+                                printf("Aborting import while creating sprite sheets folder. Failed to create directory %s\n", (rootDir + "sprite sheets").c_str());
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            // Unexpected error
+                            printf("Aborting import while looking for sprite sheets folder. Error code %lu\n", err);
+                            break;
+                        }
+                    }
+                    else if (!(ftyp & FILE_ATTRIBUTE_DIRECTORY))
+                    {
+                        // this is not a directory!
+                        printf("Aborting import while looking for sprite sheets folder. Something that is not a directory is occupying the sprite sheets folder name\n");
+                        break;
                     }
 
                     // save image locally in the mpgchar folder
