@@ -45,8 +45,6 @@ void CharacterTypes::from_json(const json& j, std::shared_ptr<SpriteSheet>& s)
     
     std::shared_ptr<SpriteSheet> tempPtr(newSheet);
     s.swap(tempPtr);
-
-    // TODO load sprite sheet data below
 }
 
 // Serialize Hitbox

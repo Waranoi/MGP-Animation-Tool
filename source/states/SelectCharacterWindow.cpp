@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <fstream>
+#include <chrono>
 extern "C"
 {
     #include "tinyfiledialogs.h"
@@ -165,8 +166,34 @@ void SelectCharacterWindow::SelectCharacterState()
             {
                 rootDir.erase(rootDir.begin() + last_slash_idx_root + 1, rootDir.end());
             }
+
+            printf("Start loading sprite sheets into main memory...\n");
+            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+            for (int i = 0; i < c.spriteSheets.size(); i++)
+            {
+                // open image file
+                std::ifstream infile(rootDir + c.spriteSheets[i]->sourceLocation, std::ios::binary);
+
+                // read data to buffer vector
+                std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
+
+                //close image file
+                infile.close();
+
+                // copy image data to sprite sheet struct
+                c.spriteSheets[i]->size = buffer.size();
+                c.spriteSheets[i]->data = new char[c.spriteSheets[i]->size];
+                for (int j = 0; j < c.spriteSheets[i]->size; j++)
+                {
+                    c.spriteSheets[i]->data[j] = buffer[j];
+                }
+            }
+            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<float> duration2 = t2 - t1;
+            std::cout << "Load finished after : " << duration2.count() << " seconds" << std::endl; 
+  
             EditCharacterWindow::EditCharacterState(c, rootDir);
-        }
+        }   
     };
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, nullptr, nullptr, nullptr);
