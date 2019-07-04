@@ -2,6 +2,7 @@
 #include "StateMediator.h"
 #include "ConsoleUtils.h"
 #include <stdio.h>
+#include <cstdio>
 #include <fstream>
 #include <memory>
 #include <windows.h>
@@ -222,9 +223,19 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
         if (key == GLFW_KEY_R && action == GLFW_PRESS)
         {
             // Delete the selected sprite sheet
-            character.spriteSheets.erase(character.spriteSheets.begin() + spriteSheet);
-            SaveCharacter();
-            EditCharacterState(character, rootDir);
+            int err = std::remove((rootDir + character.spriteSheets[spriteSheet]->sourceLocation).c_str());
+            if (err == 0 || err == ENOENT)
+            {
+                // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
+                character.spriteSheets.erase(character.spriteSheets.begin() + spriteSheet);
+                SaveCharacter();
+                EditCharacterState(character, rootDir);
+            }
+            else
+            {
+                // Failed to remove sprite sheet image
+                std::perror("Failed to remove sprite sheet");
+            }
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         {
