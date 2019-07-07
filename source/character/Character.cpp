@@ -22,7 +22,6 @@ void CharacterTypes::from_json(const json& j, Version& v)
 void CharacterTypes::to_json(json& j, const std::shared_ptr<SpriteSheet>& s)
 {
     if (s.get()) {
-        j["name"] = s->name;
         j["sourceLocation"] = s->sourceLocation;
         j["width"] = s->width;
         j["height"] = s->height;
@@ -35,8 +34,7 @@ void CharacterTypes::to_json(json& j, const std::shared_ptr<SpriteSheet>& s)
 
 void CharacterTypes::from_json(const json& j, std::shared_ptr<SpriteSheet>& s)
 {
-    SpriteSheet *newSheet = new SpriteSheet();    
-    j.at("name").get_to(newSheet->name);
+    SpriteSheet *newSheet = new SpriteSheet();
     j.at("sourceLocation").get_to(newSheet->sourceLocation);
     j.at("width").get_to(newSheet->width);
     j.at("height").get_to(newSheet->height);

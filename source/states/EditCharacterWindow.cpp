@@ -93,24 +93,15 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     {
                         file.erase(0, last_slash_idx + 1);
                     }
-                    
-                    std::string filename = file;
-                    // Remove extension if present.
-                    const size_t period_idx = filename.rfind('.');
-                    if (std::string::npos != period_idx)
-                    {
-                        filename.erase(period_idx);
-                    }
 
-                    // Set sprite sheet name
-                    newSpriteSheet->name = filename;
+                    // Set sprite source
                     newSpriteSheet->sourceLocation = "sprite sheets/" + file;
 
                     // Check if imported image will conflict with existing image
                     std::ifstream copyTargetTest(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
                     if (copyTargetTest.good())
                     {
-                        printf("Can't import %s, a file with this name already exists\n", filename.c_str());
+                        printf("Can't import %s, a file with this name already exists\n", file.c_str());
                         break;
                     }
 
@@ -189,7 +180,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
             printf("List of sprite sheets:\n");
             for (int i = 0; i < character.spriteSheets.size(); i++)
             {
-                printf("%d. %s\n", i, character.spriteSheets[i]->name.c_str());
+                printf("%d. %s\n", i, character.spriteSheets[i]->sourceLocation.c_str());
             }
 
             printf("----\nList of animations:\n");
@@ -215,16 +206,40 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
         return;
 
     printf("\nState: Edit Sprite Sheet\n");
+    printf("I: Edit image source width and height\n");
+    printf("C: Edit cell width and height\n");
     printf("R: Remove sprite sheet\n");
     printf("ESC: Go to Edit Character state\n\n");
 
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_R && action == GLFW_PRESS)
+        if (key == GLFW_KEY_I && action == GLFW_PRESS)
+        {
+            printf("Set image width: ");
+            character.spriteSheets[spriteSheet]->width = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+            printf("Set image height: ");
+            character.spriteSheets[spriteSheet]->height = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+            // Save changes
+            SaveCharacter();
+        }
+        else if (key == GLFW_KEY_C && action == GLFW_PRESS)
+        {
+            printf("Set sprite sheet cell width: ");
+            character.spriteSheets[spriteSheet]->cellWidth = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+            printf("Set sprite sheet cell height: ");
+            character.spriteSheets[spriteSheet]->cellHeight = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+            // Save changes
+            SaveCharacter();
+        }
+        else if (key == GLFW_KEY_R && action == GLFW_PRESS)
         {
             // Delete the selected sprite sheet
             int err = std::remove((rootDir + character.spriteSheets[spriteSheet]->sourceLocation).c_str());
-            if (err == 0 || err == ENOENT)
+            if (err == 0 || errno == ENOENT)
             {
                 // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
                 character.spriteSheets.erase(character.spriteSheets.begin() + spriteSheet);
@@ -235,6 +250,7 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
             {
                 // Failed to remove sprite sheet image
                 std::perror("Failed to remove sprite sheet");
+                printf("Error code: %d", err);
             }
         }
         else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)

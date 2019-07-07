@@ -131,8 +131,6 @@ void SelectCharacterWindow::SelectCharacterState()
                 filepath[charFolderLen + nameLen - 1 + i] = extension[i];
             }
 
-
-            printf("rootDir: %s\n", rootDir.c_str());
             printf("filepath: %s\n", filepath);
         	Character c;
         	c.version = LatestCharacterVersion();

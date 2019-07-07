@@ -1,7 +1,5 @@
 Tidy up the following fixed bug: Imported sprite sheets are not copied to the sprite sheets folder if it does not exist
 
-Add functions to manipulate sprite sheets in the program.
-
 Tidy upp the add and load sprite sheet code.
 
 Handle SelectCharacterWindow trying to load sprite sheets that doesn't exist in the sprite sheets folder. Check that the ifstream is valid, if it's not then warn the user and continue to the next iteration.

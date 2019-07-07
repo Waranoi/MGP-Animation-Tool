@@ -37,10 +37,7 @@ namespace CharacterTypes
 
     struct SpriteSheet
     {
-        // Name of the sprite sheet, should be unique to the character
-        std::string name;
-
-        // Filepath to the sprite sheet source
+        // Filepath to the sprite sheet source. Is also used as the name of the sprite sheet
         std::string sourceLocation;
 
         // Width of sprite sheet
