@@ -2,8 +2,6 @@ Tidy up the following fixed bug: Imported sprite sheets are not copied to the sp
 
 Tidy upp the add and load sprite sheet code.
 
-Handle SelectCharacterWindow trying to load sprite sheets that doesn't exist in the sprite sheets folder. Check that the ifstream is valid, if it's not then warn the user and continue to the next iteration.
-
 Instead of breaking when trying to import an existing sprite sheet, check if the sprite sheet exists in the .mpgchar json file. If it does not exist, add it. If it exists, complain about adding an existing sprite sheet and break.
 
 // The character's sprite sheets
