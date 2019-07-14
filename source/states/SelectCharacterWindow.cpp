@@ -172,7 +172,7 @@ void SelectCharacterWindow::SelectCharacterState()
             {
                 // open image file
                 std::ifstream infile(rootDir + c.spriteSheets[i]->sourceLocation, std::ios::binary);
-                if (!infile)
+                if (!infile.good())
                 {
                     printf("Failed to load sprite sheet %s\n", c.spriteSheets[i]->sourceLocation.c_str());
                     continue;
