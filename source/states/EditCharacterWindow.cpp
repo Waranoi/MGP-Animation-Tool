@@ -82,7 +82,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
 
                     if (addSpriteSheetFilepath == NULL)
                     {
-                        printf("Sprite sheet import aborted\n");
+                        printf("Sprite sheet import aborted\n\n");
                         break;
                     }
                     
@@ -97,63 +97,92 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     // Set sprite source
                     newSpriteSheet->sourceLocation = "sprite sheets/" + file;
 
+                    // Check if a sprite sheet with this sourceLocation already exists
+                    bool alreadyExists = false;
+                    for (int i = 0; i < character.spriteSheets.size(); i++)
+                    {
+                        if (character.spriteSheets[i]->sourceLocation.compare(newSpriteSheet->sourceLocation) == 0)
+                        {
+                            alreadyExists = true;
+                            break;
+                        }
+                    }
+                    if (alreadyExists)
+                    {
+                        printf("Can't import %s, a sprite sheet with this name already exists\n\n", file.c_str());
+                        break;
+                    }
+
                     // Check if imported image will conflict with existing image
                     std::ifstream copyTargetTest(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
                     if (copyTargetTest.good())
                     {
-                        printf("Can't import %s, a file with this name already exists\n", file.c_str());
-                        break;
-                    }
+                        printf("No sprite sheet named %s exists, but a sprite sheet source image with this name already exists.\nUsing existing source image for new sprite sheet.\n", file.c_str());
+                        
+                        // read data to buffer vector
+                        std::vector<char> buffer(std::istreambuf_iterator<char>(copyTargetTest), {});
 
-                    // open image file
-                    std::ifstream infile(addSpriteSheetFilepath, std::ios::binary);
-
-                    // read data to buffer vector
-                    std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
-
-                    //close image file
-                    infile.close();
-
-                    // copy image data to sprite sheet struct
-                    newSpriteSheet->size = buffer.size();
-                    newSpriteSheet->data = new char[newSpriteSheet->size];
-                    for (int i = 0; i < newSpriteSheet->size; i++)
-                    {
-                        newSpriteSheet->data[i] = buffer[i];
-                    }
-                    
-                    // create folders if they are missing
-                    DWORD ftyp = GetFileAttributesA((rootDir + "sprite sheets").c_str());
-                    if (ftyp == INVALID_FILE_ATTRIBUTES)
-                    {
-                        DWORD err = GetLastError();
-                        if (err == ERROR_FILE_NOT_FOUND)
+                        // copy image data to sprite sheet struct
+                        newSpriteSheet->size = buffer.size();
+                        newSpriteSheet->data = new char[newSpriteSheet->size];
+                        for (int i = 0; i < newSpriteSheet->size; i++)
                         {
-                            if (!CreateDirectoryA((rootDir + "sprite sheets").c_str(), NULL))
+                            newSpriteSheet->data[i] = buffer[i];
+                        }
+                    }
+                    else
+                    {
+                        // open image file
+                        std::ifstream infile(addSpriteSheetFilepath, std::ios::binary);
+
+                        // read data to buffer vector
+                        std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
+
+                        //close image file
+                        infile.close();
+
+                        // copy image data to sprite sheet struct
+                        newSpriteSheet->size = buffer.size();
+                        newSpriteSheet->data = new char[newSpriteSheet->size];
+                        for (int i = 0; i < newSpriteSheet->size; i++)
+                        {
+                            newSpriteSheet->data[i] = buffer[i];
+                        }
+
+                        // create folders if they are missing
+                        DWORD ftyp = GetFileAttributesA((rootDir + "sprite sheets").c_str());
+                        if (ftyp == INVALID_FILE_ATTRIBUTES)
+                        {
+                            DWORD err = GetLastError();
+                            if (err == ERROR_FILE_NOT_FOUND)
                             {
-                                // failed to create missing directory!
-                                printf("Aborting import while creating sprite sheets folder. Failed to create directory %s\n", (rootDir + "sprite sheets").c_str());
+                                if (!CreateDirectoryA((rootDir + "sprite sheets").c_str(), NULL))
+                                {
+                                    // failed to create missing directory!
+                                    printf("Aborting import while creating sprite sheets folder. Failed to create directory %s\n", (rootDir + "sprite sheets").c_str());
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                // Unexpected error
+                                printf("Aborting import while looking for sprite sheets folder. Error code %lu\n", err);
                                 break;
                             }
                         }
-                        else
+                        else if (!(ftyp & FILE_ATTRIBUTE_DIRECTORY))
                         {
-                            // Unexpected error
-                            printf("Aborting import while looking for sprite sheets folder. Error code %lu\n", err);
+                            // this is not a directory!
+                            printf("Aborting import while looking for sprite sheets folder. Something that is not a directory is occupying the sprite sheets folder name\n");
                             break;
                         }
-                    }
-                    else if (!(ftyp & FILE_ATTRIBUTE_DIRECTORY))
-                    {
-                        // this is not a directory!
-                        printf("Aborting import while looking for sprite sheets folder. Something that is not a directory is occupying the sprite sheets folder name\n");
-                        break;
-                    }
 
-                    // save image locally in the mpgchar folder
-                    std::ofstream copyTarget(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
-                    copyTarget.write(newSpriteSheet->data, newSpriteSheet->size);
-                    copyTarget.close();
+                        // save image locally in the mpgchar folder
+                        std::ofstream copyTarget(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
+                        copyTarget.write(newSpriteSheet->data, newSpriteSheet->size);
+                        copyTarget.close();
+                    }
+                    copyTargetTest.close();
 
                     printf("Set image width: ");
                     newSpriteSheet->width = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
@@ -167,6 +196,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     printf("Set sprite sheet cell height: ");
                     newSpriteSheet->cellHeight = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
+                    printf("\n");
                     character.spriteSheets.push_back(newSpriteSheet);
                     SaveCharacter();
                     EditSpriteSheetState(character.spriteSheets.size()-1);
