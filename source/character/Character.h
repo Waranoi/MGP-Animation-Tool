@@ -55,6 +55,24 @@ namespace CharacterTypes
         // Byte array and array size of the sprite sheet
         char *data;
         int size;
+        
+        // Constructor
+        SpriteSheet()
+        {
+            width = height = cellWidth = cellHeight = size = 0;
+            data = nullptr; // this is the important line, to make sure we don't deallocate non-existing data in the desctructor
+        }
+
+        // Destructor to deallocate data
+        ~SpriteSheet()
+        {
+            if (data)
+                delete[] data;  // deallocate
+        }
+ 
+        // Rule of three, deleting copy constructor and copy assignment operator as a lazy solution to handling copying of allocated data
+        SpriteSheet(const SpriteSheet& other) = delete; // copy constructor
+        SpriteSheet& operator=(const SpriteSheet& other) = delete; // copy assignment
     };
 
     struct Animation
