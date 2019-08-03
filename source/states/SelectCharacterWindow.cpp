@@ -170,7 +170,7 @@ void SelectCharacterWindow::SelectCharacterState()
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
             for (int i = 0; i < c.spriteSheets.size(); i++)
             {
-                // open image file
+                // Open image file
                 std::ifstream infile(rootDir + c.spriteSheets[i]->sourceLocation, std::ios::binary);
                 if (!infile.good())
                 {
@@ -178,19 +178,23 @@ void SelectCharacterWindow::SelectCharacterState()
                     continue;
                 }
 
-                // read data to buffer vector
+                // Read data to buffer vector
                 std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
 
-                //close image file
+                // Close image file
                 infile.close();
 
-                // copy image data to sprite sheet struct
+                // Copy image data to sprite sheet struct
                 c.spriteSheets[i]->size = buffer.size();
                 c.spriteSheets[i]->data = new char[c.spriteSheets[i]->size];
                 for (int j = 0; j < c.spriteSheets[i]->size; j++)
                 {
                     c.spriteSheets[i]->data[j] = buffer[j];
                 }
+
+                // Create render object
+                c.spriteSheets[i]->texQuadObj = TexturedQuad::CreateQuad(rootDir + c.spriteSheets[i]->sourceLocation);
+
             }
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             std::chrono::duration<float> duration2 = t2 - t1;

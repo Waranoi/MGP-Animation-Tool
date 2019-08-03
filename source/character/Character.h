@@ -4,6 +4,7 @@
 #include <memory>
 #include "vmath.h"
 #include "../nlohmann/json.hpp"
+#include "TexturedQuad.h"
 
 namespace CharacterTypes
 {
@@ -55,6 +56,9 @@ namespace CharacterTypes
         // Byte array and array size of the sprite sheet
         char *data;
         int size;
+
+        // Texture Quad Object
+        TexturedQuad::TexQuadObj texQuadObj;
         
         // Constructor
         SpriteSheet()

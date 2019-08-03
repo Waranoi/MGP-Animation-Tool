@@ -291,8 +291,10 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
     };
 
     // Draw event for this State
-    DrawCallback newDrawEvent = [] {
-        
+    DrawCallback newDrawEvent = [spriteSheet] {
+        TexturedQuad::InitQuadDrawing();
+        TexturedQuad::BindQuad(character.spriteSheets[spriteSheet]->texQuadObj);
+        TexturedQuad::DrawQuad();
     };
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, nullptr, nullptr, newDrawEvent);

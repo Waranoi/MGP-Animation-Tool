@@ -39,8 +39,8 @@ void CharacterTypes::from_json(const json& j, std::shared_ptr<SpriteSheet>& s)
     j.at("width").get_to(newSheet->width);
     j.at("height").get_to(newSheet->height);
     j.at("cell width").get_to(newSheet->cellWidth);
-    j.at("cell height").get_to(newSheet->cellHeight);   
-    
+    j.at("cell height").get_to(newSheet->cellHeight);
+
     std::shared_ptr<SpriteSheet> tempPtr(newSheet);
     s.swap(tempPtr);
 }
