@@ -181,6 +181,9 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                         std::ofstream copyTarget(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
                         copyTarget.write(newSpriteSheet->data, newSpriteSheet->size);
                         copyTarget.close();
+
+                        // Create render object
+                        newSpriteSheet->texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet->sourceLocation);
                     }
                     copyTargetTest.close();
 
