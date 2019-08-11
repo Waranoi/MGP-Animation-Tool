@@ -23,10 +23,10 @@ void CharacterTypes::to_json(json& j, const std::shared_ptr<SpriteSheet>& s)
 {
     if (s.get()) {
         j["sourceLocation"] = s->sourceLocation;
-        j["width"] = s->width;
-        j["height"] = s->height;
-        j["cell width"] = s->cellWidth;
-        j["cell height"] = s->cellHeight;
+        j["width"] = s->texDim.x;
+        j["height"] = s->texDim.y;
+        j["cell width"] = s->cellDim.x;
+        j["cell height"] = s->cellDim.y;
     } else {
         j = nullptr;
     }
@@ -36,10 +36,10 @@ void CharacterTypes::from_json(const json& j, std::shared_ptr<SpriteSheet>& s)
 {
     SpriteSheet *newSheet = new SpriteSheet();
     j.at("sourceLocation").get_to(newSheet->sourceLocation);
-    j.at("width").get_to(newSheet->width);
-    j.at("height").get_to(newSheet->height);
-    j.at("cell width").get_to(newSheet->cellWidth);
-    j.at("cell height").get_to(newSheet->cellHeight);
+    j.at("width").get_to(newSheet->texDim.x);
+    j.at("height").get_to(newSheet->texDim.y);
+    j.at("cell width").get_to(newSheet->cellDim.x);
+    j.at("cell height").get_to(newSheet->cellDim.y);
 
     std::shared_ptr<SpriteSheet> tempPtr(newSheet);
     s.swap(tempPtr);

@@ -31,6 +31,9 @@ namespace CharacterTypes
     {
         // The cell of the sprite sheet used for this sprite
         int cell;
+        
+        // Texture Quad Object
+        TexturedQuad::TexQuadObj texQuadObj;
 
         // The hitboxes of this sprite
         std::vector<Hitbox> hitboxes;
@@ -41,17 +44,11 @@ namespace CharacterTypes
         // Filepath to the sprite sheet source. Is also used as the name of the sprite sheet
         std::string sourceLocation;
 
-        // Width of sprite sheet
-        int width;
-        
-        // Height of sprite sheet
-        int height;
+        // Width and height of sprite sheet
+        Vector2i texDim;
 
-        // Width of sprite cell
-        int cellWidth;
-
-        // Height of sprite cell
-        int cellHeight;
+        // Width and height of sprite cell
+        Vector2i cellDim;
 
         // Byte array and array size of the sprite sheet
         char *data;
@@ -63,8 +60,7 @@ namespace CharacterTypes
         // Constructor
         SpriteSheet()
         {
-            width = height = cellWidth = cellHeight = size = 0;
-            data = nullptr; // this is the important line, to make sure we don't deallocate non-existing data in the desctructor
+            data = nullptr; // Makes sure we don't deallocate non-existing data in the desctructor
         }
 
         // Destructor to deallocate data

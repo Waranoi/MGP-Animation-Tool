@@ -2,9 +2,12 @@ Tidy up the following fixed bug: Imported sprite sheets are not copied to the sp
 
 Tidy upp the add and load sprite sheet code.
 
-Render animation frames
+Load textures when loading characters in Character.cpp
+Handle broken sprite sheet reference in animation edit state gracefully
+Change sprite cell ordering from "bottom to top" to "top to bottom"
+
 Render animation hitboxes
 Animate animation
 
 Version 2 goals:
-Remove external console and replace it with a console within the opengl window. https://github.com/ocornut/imgui
+Remove external console or replace it with a console within the opengl window. https://github.com/ocornut/imgui
