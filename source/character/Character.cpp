@@ -1,4 +1,5 @@
 #include "Character.h"
+#include <fstream>
 
 using nlohmann::json;
 using namespace CharacterTypes;
@@ -115,4 +116,29 @@ void CharacterTypes::from_json(const json& j, Character& c)
 Version CharacterTypes::LatestCharacterVersion()
 {
     return { 1, 0, 0 };
+}
+
+CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
+{
+    std::ifstream infile(character);
+    nlohmann::json j;
+    infile >> j;
+    infile.close();
+    Character c = j;
+
+    std::string rootDir(character);
+    const size_t last_slash_idx_root = rootDir.find_last_of("\\/");
+    if (std::string::npos != last_slash_idx_root)
+    {
+        rootDir.erase(rootDir.begin() + last_slash_idx_root + 1, rootDir.end());
+    }
+    std::replace(rootDir.begin(), rootDir.end(), '\\', '/');
+
+    for (int i = 0; i < c.spriteSheets.size(); i++)
+    {
+        // Create render object
+        c.spriteSheets[i]->texQuadObj = TexturedQuad::CreateQuad(rootDir + c.spriteSheets[i]->sourceLocation);
+    }
+
+    return c;
 }

@@ -153,11 +153,7 @@ void SelectCharacterWindow::SelectCharacterState()
             char const * filterPatterns[1] = { "*.mgpchar" };
             char const * loadCharFilepath = tinyfd_openFileDialog("Character location", "", 1, filterPatterns, NULL, 0);
 
-            std::ifstream infile(loadCharFilepath);
-            nlohmann::json j;
-            infile >> j;
-            infile.close();
-            Character c = j;
+            Character c = LoadCharacter(loadCharFilepath);
             
             std::string rootDir(loadCharFilepath);
             const size_t last_slash_idx_root = rootDir.find_last_of("\\/");
@@ -165,42 +161,9 @@ void SelectCharacterWindow::SelectCharacterState()
             {
                 rootDir.erase(rootDir.begin() + last_slash_idx_root + 1, rootDir.end());
             }
-
-            printf("Start loading sprite sheets into main memory...\n");
-            std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-            for (int i = 0; i < c.spriteSheets.size(); i++)
-            {
-                // Open image file
-                std::ifstream infile(rootDir + c.spriteSheets[i]->sourceLocation, std::ios::binary);
-                if (!infile.good())
-                {
-                    printf("Failed to load sprite sheet %s\n", c.spriteSheets[i]->sourceLocation.c_str());
-                    continue;
-                }
-
-                // Read data to buffer vector
-                std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
-
-                // Close image file
-                infile.close();
-
-                // Copy image data to sprite sheet struct
-                c.spriteSheets[i]->size = buffer.size();
-                c.spriteSheets[i]->data = new char[c.spriteSheets[i]->size];
-                for (int j = 0; j < c.spriteSheets[i]->size; j++)
-                {
-                    c.spriteSheets[i]->data[j] = buffer[j];
-                }
-
-                // Create render object
-                c.spriteSheets[i]->texQuadObj = TexturedQuad::CreateQuad(rootDir + c.spriteSheets[i]->sourceLocation);
-
-            }
-            std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<float> duration2 = t2 - t1;
-            std::cout << "Load finished after : " << duration2.count() << " seconds" << std::endl; 
-  
             std::replace(rootDir.begin(), rootDir.end(), '\\', '/');
+
+            
             EditCharacterWindow::EditCharacterState(c, rootDir);
         }   
     };

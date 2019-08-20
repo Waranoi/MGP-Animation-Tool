@@ -115,40 +115,8 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
 
                     // Check if imported image will conflict with existing image
                     std::ifstream copyTargetTest(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
-                    if (copyTargetTest.good())
+                    if (!copyTargetTest.good())
                     {
-                        printf("No sprite sheet named %s exists, but a sprite sheet source image with this name already exists.\nUsing existing source image for new sprite sheet.\n", file.c_str());
-                        
-                        // read data to buffer vector
-                        std::vector<char> buffer(std::istreambuf_iterator<char>(copyTargetTest), {});
-
-                        // copy image data to sprite sheet struct
-                        newSpriteSheet->size = buffer.size();
-                        newSpriteSheet->data = new char[newSpriteSheet->size];
-                        for (int i = 0; i < newSpriteSheet->size; i++)
-                        {
-                            newSpriteSheet->data[i] = buffer[i];
-                        }
-                    }
-                    else
-                    {
-                        // open image file
-                        std::ifstream infile(addSpriteSheetFilepath, std::ios::binary);
-
-                        // read data to buffer vector
-                        std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
-
-                        //close image file
-                        infile.close();
-
-                        // copy image data to sprite sheet struct
-                        newSpriteSheet->size = buffer.size();
-                        newSpriteSheet->data = new char[newSpriteSheet->size];
-                        for (int i = 0; i < newSpriteSheet->size; i++)
-                        {
-                            newSpriteSheet->data[i] = buffer[i];
-                        }
-
                         // create folders if they are missing
                         DWORD ftyp = GetFileAttributesA((rootDir + "sprite sheets").c_str());
                         if (ftyp == INVALID_FILE_ATTRIBUTES)
@@ -177,15 +145,30 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                             break;
                         }
 
+                        // open image file
+                        std::ifstream infile(addSpriteSheetFilepath, std::ios::binary);
+
+                        // read data to buffer vector
+                        std::vector<char> buffer(std::istreambuf_iterator<char>(infile), {});
+
+                        //close image file
+                        infile.close();
+
                         // save image locally in the mpgchar folder
                         std::ofstream copyTarget(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
-                        copyTarget.write(newSpriteSheet->data, newSpriteSheet->size);
+                        copyTarget.write(buffer.data(), buffer.size());
                         copyTarget.close();
 
                         // Create render object
                         newSpriteSheet->texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet->sourceLocation);
                     }
+                    else
+                        printf("No sprite sheet named %s exists, but a sprite sheet source image with this name already exists.\nUsing existing source image for new sprite sheet.\n", file.c_str());
+                
                     copyTargetTest.close();
+
+                    // Create render object
+                    newSpriteSheet->texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet->sourceLocation);
 
                     printf("Set image width: ");
                     newSpriteSheet->texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);

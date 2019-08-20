@@ -50,29 +50,8 @@ namespace CharacterTypes
         // Width and height of sprite cell
         Vector2i cellDim;
 
-        // Byte array and array size of the sprite sheet
-        char *data;
-        int size;
-
         // Texture Quad Object
         TexturedQuad::TexQuadObj texQuadObj;
-        
-        // Constructor
-        SpriteSheet()
-        {
-            data = nullptr; // Makes sure we don't deallocate non-existing data in the desctructor
-        }
-
-        // Destructor to deallocate data
-        ~SpriteSheet()
-        {
-            if (data)
-                delete[] data;  // deallocate
-        }
- 
-        // Rule of three, deleting copy constructor and copy assignment operator as a lazy solution to handling copying of allocated data
-        SpriteSheet(const SpriteSheet& other) = delete; // copy constructor
-        SpriteSheet& operator=(const SpriteSheet& other) = delete; // copy assignment
     };
 
     struct Animation
@@ -131,4 +110,5 @@ namespace CharacterTypes
 
     // Return current version of the Character format
     Version LatestCharacterVersion();
+    Character LoadCharacter(std::string character);
 };

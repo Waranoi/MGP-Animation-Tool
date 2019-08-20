@@ -2,7 +2,9 @@ Tidy up the following fixed bug: Imported sprite sheets are not copied to the sp
 
 Tidy upp the add and load sprite sheet code.
 
-Load textures when loading characters in Character.cpp
+Load sprite textures when loading characters in Character.cpp
+Add loading times to LoadCharacter function
+Select .mpgchar root directory instead of file
 Handle broken sprite sheet reference in animation edit state gracefully
 Change sprite cell ordering from "bottom to top" to "top to bottom"
 
