@@ -7,6 +7,7 @@ Add loading times to LoadCharacter function
 Select .mpgchar root directory instead of file
 Handle broken sprite sheet reference in animation edit state gracefully
 Change sprite cell ordering from "bottom to top" to "top to bottom"
+Replace SpriteSheet.sourceLocation usage with its map key equivalent
 
 Render animation hitboxes
 Animate animation

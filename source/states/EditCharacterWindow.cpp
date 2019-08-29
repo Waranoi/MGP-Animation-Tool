@@ -6,6 +6,7 @@
 #include <fstream>
 #include <memory>
 #include <windows.h>
+#include <iterator>
 extern "C"
 {
     #include "tinyfiledialogs.h"
@@ -74,7 +75,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                 }
                 case 1:
                 {
-                    std::shared_ptr<SpriteSheet> newSpriteSheet(new SpriteSheet());
+                    SpriteSheet newSpriteSheet;
 
                     // Select import target
                     char const * filterPatterns[2] = { "*.jpeg", "*.png" };
@@ -95,26 +96,17 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     }
 
                     // Set sprite source
-                    newSpriteSheet->sourceLocation = "sprite sheets/" + file;
+                    newSpriteSheet.sourceLocation = "sprite sheets/" + file;
 
                     // Check if a sprite sheet with this sourceLocation already exists
-                    bool alreadyExists = false;
-                    for (int i = 0; i < character.spriteSheets.size(); i++)
-                    {
-                        if (character.spriteSheets[i]->sourceLocation.compare(newSpriteSheet->sourceLocation) == 0)
-                        {
-                            alreadyExists = true;
-                            break;
-                        }
-                    }
-                    if (alreadyExists)
+                    if (character.spriteSheets.find(newSpriteSheet.sourceLocation) != character.spriteSheets.end())
                     {
                         printf("Can't import %s, a sprite sheet with this name already exists\n\n", file.c_str());
                         break;
                     }
 
                     // Check if imported image will conflict with existing image
-                    std::ifstream copyTargetTest(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
+                    std::ifstream copyTargetTest(rootDir + newSpriteSheet.sourceLocation, std::ios::binary);
                     if (!copyTargetTest.good())
                     {
                         // create folders if they are missing
@@ -155,12 +147,12 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                         infile.close();
 
                         // save image locally in the mpgchar folder
-                        std::ofstream copyTarget(rootDir + newSpriteSheet->sourceLocation, std::ios::binary);
+                        std::ofstream copyTarget(rootDir + newSpriteSheet.sourceLocation, std::ios::binary);
                         copyTarget.write(buffer.data(), buffer.size());
                         copyTarget.close();
 
                         // Create render object
-                        newSpriteSheet->texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet->sourceLocation);
+                        newSpriteSheet.texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet.sourceLocation);
                     }
                     else
                         printf("No sprite sheet named %s exists, but a sprite sheet source image with this name already exists.\nUsing existing source image for new sprite sheet.\n", file.c_str());
@@ -168,22 +160,22 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     copyTargetTest.close();
 
                     // Create render object
-                    newSpriteSheet->texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet->sourceLocation);
+                    newSpriteSheet.texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet.sourceLocation);
 
                     printf("Set image width: ");
-                    newSpriteSheet->texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+                    newSpriteSheet.texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
                     printf("Set image height: ");
-                    newSpriteSheet->texDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+                    newSpriteSheet.texDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
                     printf("Set sprite sheet cell width: ");
-                    newSpriteSheet->cellDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+                    newSpriteSheet.cellDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
                     printf("Set sprite sheet cell height: ");
-                    newSpriteSheet->cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+                    newSpriteSheet.cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
                     printf("\n");
-                    character.spriteSheets.push_back(newSpriteSheet);
+                    character.spriteSheets.insert(std::pair<std::string, SpriteSheet>(newSpriteSheet.sourceLocation, newSpriteSheet));
                     SaveCharacter();
                     EditSpriteSheetState(character.spriteSheets.size()-1);
                     break;
@@ -194,9 +186,11 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
         {
             // List all sprite sheets and animations
             printf("List of sprite sheets:\n");
-            for (int i = 0; i < character.spriteSheets.size(); i++)
+            int spriteSheetIndex = 0;
+            for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
             {
-                printf("%d. %s\n", i, character.spriteSheets[i]->sourceLocation.c_str());
+                printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
+                spriteSheetIndex++;
             }
 
             printf("----\nList of animations:\n");
@@ -216,9 +210,9 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
     StateMediator::SetEventCallbacks(newKeyboardEvent, nullptr, nullptr, newDrawEvent);
 }
 
-void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
+void EditCharacterWindow::EditSpriteSheetState(int spriteSheetIndex)
 {
-    if (!ValidateSpriteSheet(character, spriteSheet))
+    if (!ValidateSpriteSheet(character, spriteSheetIndex))
         return;
 
     printf("\nState: Edit Sprite Sheet\n");
@@ -227,15 +221,18 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
     printf("R: Remove sprite sheet\n");
     printf("ESC: Go to Edit Character state\n\n");
 
+    auto spriteSheet = character.spriteSheets.begin();
+    std::advance(spriteSheet, spriteSheetIndex); 
+
     // Keyboard action event for this State.
     KeyboardCallback newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (key == GLFW_KEY_I && action == GLFW_PRESS)
         {
             printf("Set image width: ");
-            character.spriteSheets[spriteSheet]->texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+            spriteSheet->second.texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
             printf("Set image height: ");
-            character.spriteSheets[spriteSheet]->texDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+            spriteSheet->second.texDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
             // Save changes
             SaveCharacter();
@@ -243,10 +240,10 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
         else if (key == GLFW_KEY_C && action == GLFW_PRESS)
         {
             printf("Set sprite sheet cell width: ");
-            character.spriteSheets[spriteSheet]->cellDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+            spriteSheet->second.cellDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
             printf("Set sprite sheet cell height: ");
-            character.spriteSheets[spriteSheet]->cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+            spriteSheet->second.cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
             // Save changes
             SaveCharacter();
@@ -254,11 +251,11 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
         else if (key == GLFW_KEY_R && action == GLFW_PRESS)
         {
             // Delete the selected sprite sheet
-            int err = std::remove((rootDir + character.spriteSheets[spriteSheet]->sourceLocation).c_str());
+            int err = std::remove((rootDir + spriteSheet->second.sourceLocation).c_str());
             if (err == 0 || errno == ENOENT)
             {
                 // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
-                character.spriteSheets.erase(character.spriteSheets.begin() + spriteSheet);
+                character.spriteSheets.erase(spriteSheet);
                 SaveCharacter();
                 EditCharacterState(character, rootDir);
             }
@@ -279,7 +276,7 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheet)
     // Draw event for this State
     DrawCallback newDrawEvent = [spriteSheet] {
         TexturedQuad::InitQuadDrawing();
-        TexturedQuad::BindQuad(character.spriteSheets[spriteSheet]->texQuadObj);
+        TexturedQuad::BindQuad(spriteSheet->second.texQuadObj);
         TexturedQuad::DrawQuad();
     };
 
@@ -344,16 +341,22 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
         if (key == GLFW_KEY_S && action == GLFW_PRESS)
         {
             printf("List of sprite sheets:\n");
-            for (int i = 0; i < character.spriteSheets.size(); i++)
+            int spriteSheetIndex = 0;
+            for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
             {
-                printf("%d. %s\n", i, character.spriteSheets[i]->sourceLocation.c_str());
+                printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
+                spriteSheetIndex++;
             }
 
             printf("\nSelect sprite sheet (-1 to cancel) --> ");
-            int spriteSheet = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
+            spriteSheetIndex = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
 
-            if (spriteSheet != -1)
-                character.animations[animation].spriteSheet = character.spriteSheets[spriteSheet];
+            if (spriteSheetIndex != -1)
+            {
+                auto spriteSheet = character.spriteSheets.begin();
+                std::advance(spriteSheet, spriteSheetIndex);
+                character.animations[animation].spriteSheet = spriteSheet->first;
+            }
         }
         if (key == GLFW_KEY_P && action == GLFW_PRESS)
         {
@@ -384,7 +387,8 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
         else if (key == GLFW_KEY_N && action == GLFW_PRESS)
         {
             // Check if a sprite sheet is selected
-            if (character.animations[animation].spriteSheet.expired())
+            auto spriteSheet = character.spriteSheets.find(character.animations[animation].spriteSheet);
+            if (spriteSheet == character.spriteSheets.end())
             {
                 printf("Can't create a sprite without a sprite sheet selected.\n");
                 return;
@@ -397,14 +401,16 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
             printf("Select sprite cell: ");
             character.animations[animation].sprites[next].cell = ConsoleUtils::GetIntegerInput(true);
 
-            // Get sprite sheet ref
-            std::shared_ptr<SpriteSheet> spriteSheet = character.animations[animation].spriteSheet.lock();
             // Sprite cell alias for easier to read code
             int spriteCell = character.animations[animation].sprites[next].cell;
             // Get origo of sprite cell in texture
-            Vector2i texOrig(spriteCell * spriteSheet->cellDim.x % spriteSheet->texDim.x, spriteCell * spriteSheet->cellDim.x / spriteSheet->texDim.x * spriteSheet->cellDim.y);
+            Vector2i texOrig
+            (
+                spriteCell * spriteSheet->second.cellDim.x % spriteSheet->second.texDim.x, 
+                spriteCell * spriteSheet->second.cellDim.x / spriteSheet->second.texDim.x * spriteSheet->second.cellDim.y
+            );
             // Create texture quad for sprite
-            character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->sourceLocation, texOrig, spriteSheet->cellDim);
+            character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->second.sourceLocation, texOrig, spriteSheet->second.cellDim);
 
             SaveCharacter();
             EditAnimationState(animation, next);
@@ -425,7 +431,8 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
 
     // Draw event for this State
     DrawCallback newDrawEvent = [animation, sprite] {
-        if (sprite != NONE && !character.animations[animation].spriteSheet.expired())
+        auto spriteSheet = character.spriteSheets.find(character.animations[animation].spriteSheet);
+        if (sprite != NONE && spriteSheet != character.spriteSheets.end())
         {
             TexturedQuad::InitQuadDrawing();
             TexturedQuad::BindQuad(character.animations[animation].sprites[sprite].texQuadObj);

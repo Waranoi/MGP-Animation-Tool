@@ -24,7 +24,7 @@ TexturedQuad::TexQuadObj TexturedQuad::CreateQuad(std::string texSource)
     };
     int quadEB[] = { 0, 1, 2, 0, 2, 3 };
 
-	glGenBuffers(1, &newTexQuad.vbo);
+	glGenBuffers(1, &newTexQuad.vbo);   
 	glBindBuffer(GL_ARRAY_BUFFER, newTexQuad.vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVB), quadVB, GL_STATIC_DRAW);
 

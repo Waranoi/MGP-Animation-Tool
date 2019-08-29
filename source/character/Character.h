@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 #include "vmath.h"
 #include "../nlohmann/json.hpp"
 #include "TexturedQuad.h"
@@ -60,7 +61,8 @@ namespace CharacterTypes
         std::string name;
         
         // Weak pointer to the sprite sheet this animation depends on. Validity of ptr should be checked regularly
-        std::weak_ptr<SpriteSheet> spriteSheet;
+        //std::weak_ptr<SpriteSheet> spriteSheet;
+        std::string spriteSheet;
 
         // The sprites in this animation
         std::vector<Sprite> sprites;
@@ -78,7 +80,9 @@ namespace CharacterTypes
         std::string name;
 
         // The character's sprite sheets
-        std::vector<std::shared_ptr<SpriteSheet>> spriteSheets;
+        //std::vector<std::shared_ptr<SpriteSheet>> spriteSheets;
+
+        std::map<std::string, SpriteSheet> spriteSheets;
 
         // The character's animations
         std::vector<Animation> animations;
@@ -89,8 +93,8 @@ namespace CharacterTypes
     void from_json(const nlohmann::json& j, Version& v);
 
     // Serialize Sprite Sheet
-    void to_json(nlohmann::json& j, const std::shared_ptr<SpriteSheet>& s);
-    void from_json(const nlohmann::json& j, std::shared_ptr<SpriteSheet>& s);
+    void to_json(nlohmann::json& j, const SpriteSheet& s);
+    void from_json(const nlohmann::json& j, SpriteSheet& s);
 
     // Serialize Hitbox
     void to_json(nlohmann::json& j, const Hitbox& h);

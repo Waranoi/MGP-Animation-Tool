@@ -20,30 +20,22 @@ void CharacterTypes::from_json(const json& j, Version& v)
 }
 
 // Serialize Sprite Sheet
-void CharacterTypes::to_json(json& j, const std::shared_ptr<SpriteSheet>& s)
+void CharacterTypes::to_json(json& j, const SpriteSheet& s)
 {
-    if (s.get()) {
-        j["sourceLocation"] = s->sourceLocation;
-        j["width"] = s->texDim.x;
-        j["height"] = s->texDim.y;
-        j["cell width"] = s->cellDim.x;
-        j["cell height"] = s->cellDim.y;
-    } else {
-        j = nullptr;
-    }
+    j["sourceLocation"] = s.sourceLocation;
+    j["width"] = s.texDim.x;
+    j["height"] = s.texDim.y;
+    j["cell width"] = s.cellDim.x;
+    j["cell height"] = s.cellDim.y;
 }
 
-void CharacterTypes::from_json(const json& j, std::shared_ptr<SpriteSheet>& s)
+void CharacterTypes::from_json(const json& j, SpriteSheet& s)
 {
-    SpriteSheet *newSheet = new SpriteSheet();
-    j.at("sourceLocation").get_to(newSheet->sourceLocation);
-    j.at("width").get_to(newSheet->texDim.x);
-    j.at("height").get_to(newSheet->texDim.y);
-    j.at("cell width").get_to(newSheet->cellDim.x);
-    j.at("cell height").get_to(newSheet->cellDim.y);
-
-    std::shared_ptr<SpriteSheet> tempPtr(newSheet);
-    s.swap(tempPtr);
+    j.at("sourceLocation").get_to(s.sourceLocation);
+    j.at("width").get_to(s.texDim.x);
+    j.at("height").get_to(s.texDim.y);
+    j.at("cell width").get_to(s.cellDim.x);
+    j.at("cell height").get_to(s.cellDim.y);
 }
 
 // Serialize Hitbox
@@ -134,11 +126,26 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
     }
     std::replace(rootDir.begin(), rootDir.end(), '\\', '/');
 
-    for (int i = 0; i < c.spriteSheets.size(); i++)
+    for (auto it = c.spriteSheets.begin(); it != c.spriteSheets.end(); it++)
     {
         // Create render object
-        c.spriteSheets[i]->texQuadObj = TexturedQuad::CreateQuad(rootDir + c.spriteSheets[i]->sourceLocation);
+        it->second.texQuadObj = TexturedQuad::CreateQuad(rootDir + it->second.sourceLocation);
     }
+
+    // for (int i = 0; i < c.animations.size(); i++)
+    // {
+    //     std::vector<Sprite> sprites = c.animations[i].sprites; 
+    //     std::shared_ptr<SpriteSheet> spriteSheet = c.animations[i].spriteSheet.lock();
+    //     for (int j = 0; j < sprites.size(); j++)
+    //     {            
+    //         // Sprite cell alias for easier to read code
+    //         int spriteCell = sprites[j].cell;
+    //         // Get origo of sprite cell in texture
+    //         Vector2i texOrig(spriteCell * spriteSheet->cellDim.x % spriteSheet->texDim.x, spriteCell * spriteSheet->cellDim.x / spriteSheet->texDim.x * spriteSheet->cellDim.y);
+    //         // Create texture quad for sprite
+    //         sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->sourceLocation, texOrig, spriteSheet->cellDim);
+    //     }
+    // }
 
     return c;
 }
