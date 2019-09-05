@@ -78,12 +78,14 @@ void CharacterTypes::to_json(json& j, const Animation& a)
 {
     j["name"] = a.name;
     j["sprites"] = a.sprites;
+    j["spriteSheet"] = a.spriteSheet;
 }
 
 void CharacterTypes::from_json(const json& j, Animation& a)
 {
     j.at("name").get_to(a.name);
     j.at("sprites").get_to(a.sprites);
+    j.at("spriteSheet").get_to(a.spriteSheet);
 }
 
 // Serialize Character
@@ -132,20 +134,31 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
         it->second.texQuadObj = TexturedQuad::CreateQuad(rootDir + it->second.sourceLocation);
     }
 
-    // for (int i = 0; i < c.animations.size(); i++)
-    // {
-    //     std::vector<Sprite> sprites = c.animations[i].sprites; 
-    //     std::shared_ptr<SpriteSheet> spriteSheet = c.animations[i].spriteSheet.lock();
-    //     for (int j = 0; j < sprites.size(); j++)
-    //     {            
-    //         // Sprite cell alias for easier to read code
-    //         int spriteCell = sprites[j].cell;
-    //         // Get origo of sprite cell in texture
-    //         Vector2i texOrig(spriteCell * spriteSheet->cellDim.x % spriteSheet->texDim.x, spriteCell * spriteSheet->cellDim.x / spriteSheet->texDim.x * spriteSheet->cellDim.y);
-    //         // Create texture quad for sprite
-    //         sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->sourceLocation, texOrig, spriteSheet->cellDim);
-    //     }
-    // }
+    for (int i = 0; i < c.animations.size(); i++)
+    {
+        const Animation anim = c.animations[i];
+        SpriteSheet spriteSheet;
+
+        try
+        {
+            spriteSheet = c.spriteSheets.at(anim.spriteSheet);
+        }
+        catch(const std::out_of_range& e)
+        {
+            printf("No matching sprite sheet '%s' found for Animation '%s'", anim.spriteSheet.c_str(), anim.name.c_str());
+            continue;
+        }
+        
+        for (int j = 0; j < anim.sprites.size(); j++)
+        {            
+            // Sprite cell alias for easier to read code
+            int spriteCell = anim.sprites[j].cell;
+            // Get origo of sprite cell in texture
+            Vector2i texOrig(spriteCell * spriteSheet.cellDim.x % spriteSheet.texDim.x, spriteCell * spriteSheet.cellDim.x / spriteSheet.texDim.x * spriteSheet.cellDim.y);
+            // Create texture quad for sprite
+            c.animations[i].sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet.sourceLocation, texOrig, spriteSheet.cellDim);
+        }
+    }
 
     return c;
 }
