@@ -12,4 +12,4 @@ Render animation hitboxes
 Animate animation
 
 Version 2 goals:
-Remove external console or replace it with a console within the opengl window. https://github.com/ocornut/imgui
+Remove console or replace it with an internal console. https://github.com/ocornut/imgui
