@@ -8,6 +8,7 @@ namespace TexturedQuad
     struct TexQuadObj
     {
         GLuint vbo, ebo, tex;
+        TexQuadObj();
     };
     
     // texSource is the absolute path to the .png source that will be used as the texture.
@@ -16,6 +17,8 @@ namespace TexturedQuad
     TexQuadObj CreateQuad(std::string texSource, Vector2i texOrig, Vector2i texSize);
     // Update your quad.
     TexQuadObj UpdateQuad(TexQuadObj quad);
+    // Check if quad is valid.
+    bool IsValidTexQuad(TexQuadObj quad);
 
     // Init before you draw any quads.
     void InitQuadDrawing();

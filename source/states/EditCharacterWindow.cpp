@@ -325,120 +325,150 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
         sprite = NONE;
     else if (!ValidateSprite(character, animation, sprite))
         return;
-        
-    printf("\nState: Edit Animation\n");
-    printf("S: Set sprite sheet\n");
-    printf("P: Playback animation\n");
-    printf("E: Select sprite\n");
-    printf("Right arrow: Next sprite\n");
-    printf("Left arrow: Prev sprite\n");
-    printf("N: Create new sprite\n");
-    printf("R: Remove animation\n");
-    printf("ESC: Go to Edit Character state\n\n");
     
-    // Keyboard action event for this State.
-    KeyboardCallback newKeyboardEvent = [animation, sprite] (GLFWwindow* window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_S && action == GLFW_PRESS)
-        {
-            printf("List of sprite sheets:\n");
-            int spriteSheetIndex = 0;
-            for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
+    auto spriteSheet = character.spriteSheets.find(character.animations[animation].spriteSheet);
+    KeyboardCallback newKeyboardEvent = nullptr;
+    DrawCallback newDrawEvent = nullptr;
+
+    if (spriteSheet == character.spriteSheets.end())
+    {
+        printf("\nState: Edit Animation\n");
+        printf("S: Set sprite sheet\n");
+        printf("Referenced sprite sheet '%s' does not exist\n", character.animations[animation].spriteSheet.c_str());
+
+        // Keyboard action event for this State.
+        newKeyboardEvent = [animation, sprite, spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
+            if (key == GLFW_KEY_S && action == GLFW_PRESS)
             {
-                printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
-                spriteSheetIndex++;
+                printf("List of sprite sheets:\n");
+                int spriteSheetIndex = 0;
+                for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
+                {
+                    printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
+                    spriteSheetIndex++;
+                }
+
+                printf("\nSelect sprite sheet (-1 to cancel) --> ");
+                spriteSheetIndex = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
+
+                if (spriteSheetIndex != -1)
+                {
+                    auto spriteSheetIter = character.spriteSheets.begin();
+                    std::advance(spriteSheetIter, spriteSheetIndex);
+                    character.animations[animation].spriteSheet = spriteSheetIter->first;
+                    EditAnimationState(animation, sprite);
+                }
             }
+        };
+    }
+    else
+    {
+        printf("\nState: Edit Animation\n");
+        printf("S: Set sprite sheet\n");
+        printf("P: Playback animation\n");
+        printf("E: Select sprite\n");
+        printf("Right arrow: Next sprite\n");
+        printf("Left arrow: Prev sprite\n");
+        printf("N: Create new sprite\n");
+        printf("R: Remove animation\n");
+        printf("ESC: Go to Edit Character state\n\n");
 
-            printf("\nSelect sprite sheet (-1 to cancel) --> ");
-            spriteSheetIndex = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
-
-            if (spriteSheetIndex != -1)
+        // Keyboard action event for this State.
+        newKeyboardEvent = [animation, sprite, spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
+            if (key == GLFW_KEY_S && action == GLFW_PRESS)
             {
-                auto spriteSheet = character.spriteSheets.begin();
-                std::advance(spriteSheet, spriteSheetIndex);
-                character.animations[animation].spriteSheet = spriteSheet->first;
+                printf("List of sprite sheets:\n");
+                int spriteSheetIndex = 0;
+                for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
+                {
+                    printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
+                    spriteSheetIndex++;
+                }
+
+                printf("\nSelect sprite sheet (-1 to cancel) --> ");
+                spriteSheetIndex = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
+
+                if (spriteSheetIndex != -1)
+                {
+                    auto spriteSheetIter = character.spriteSheets.begin();
+                    std::advance(spriteSheetIter, spriteSheetIndex);
+                    character.animations[animation].spriteSheet = spriteSheetIter->first;
+                    EditAnimationState(animation, sprite);
+                }
             }
-        }
-        if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        {
-            // Animate selected animation
-            PlayAnimationState(animation);
-        }
-        else if (key == GLFW_KEY_E && action == GLFW_PRESS)
-        {
-            // Edit selected sprite
-            EditSpriteState(animation, sprite, 0);
-        }
-        else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-        {
-            // Select next sprite
-            int next = sprite + 1;
-            if (next >= character.animations[animation].sprites.size())
-                next = 0;
-            EditAnimationState(animation, next);
-        }
-        else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-        {
-            // Select previous sprite
-            int prev = sprite - 1;
-            if (prev < 0)
-                prev = character.animations[animation].sprites.size()-1;
-            EditAnimationState(animation, prev);
-        }
-        else if (key == GLFW_KEY_N && action == GLFW_PRESS)
-        {
-            // Check if a sprite sheet is selected
-            auto spriteSheet = character.spriteSheets.find(character.animations[animation].spriteSheet);
-            if (spriteSheet == character.spriteSheets.end())
+            if (key == GLFW_KEY_P && action == GLFW_PRESS)
             {
-                printf("Can't create a sprite without a sprite sheet selected.\n");
-                return;
+                // Animate selected animation
+                PlayAnimationState(animation);
             }
+            else if (key == GLFW_KEY_E && action == GLFW_PRESS)
+            {
+                // Edit selected sprite
+                EditSpriteState(animation, sprite, 0);
+            }
+            else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+            {
+                // Select next sprite
+                int next = sprite + 1;
+                if (next >= character.animations[animation].sprites.size())
+                    next = 0;
+                EditAnimationState(animation, next);
+            }
+            else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+            {
+                // Select previous sprite
+                int prev = sprite - 1;
+                if (prev < 0)
+                    prev = character.animations[animation].sprites.size()-1;
+                EditAnimationState(animation, prev);
+            }
+            else if (key == GLFW_KEY_N && action == GLFW_PRESS)
+            {
+                // Create a new sprite
+                int next = character.animations[animation].sprites.size();
+                character.animations[animation].sprites.emplace_back();
 
-            // Create a new sprite
-            int next = character.animations[animation].sprites.size();
-            character.animations[animation].sprites.emplace_back();
+                printf("Select sprite cell: ");
+                character.animations[animation].sprites[next].cell = ConsoleUtils::GetIntegerInput(true);
 
-            printf("Select sprite cell: ");
-            character.animations[animation].sprites[next].cell = ConsoleUtils::GetIntegerInput(true);
+                // Sprite cell alias for easier to read code
+                int spriteCell = character.animations[animation].sprites[next].cell;
+                // Get origo of sprite cell in texture
+                Vector2i texOrig
+                (
+                    spriteCell * spriteSheet->second.cellDim.x % spriteSheet->second.texDim.x, 
+                    spriteCell * spriteSheet->second.cellDim.x / spriteSheet->second.texDim.x * spriteSheet->second.cellDim.y
+                );
+                // Create texture quad for sprite
+                character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->second.sourceLocation, texOrig, spriteSheet->second.cellDim);
 
-            // Sprite cell alias for easier to read code
-            int spriteCell = character.animations[animation].sprites[next].cell;
-            // Get origo of sprite cell in texture
-            Vector2i texOrig
-            (
-                spriteCell * spriteSheet->second.cellDim.x % spriteSheet->second.texDim.x, 
-                spriteCell * spriteSheet->second.cellDim.x / spriteSheet->second.texDim.x * spriteSheet->second.cellDim.y
-            );
-            // Create texture quad for sprite
-            character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->second.sourceLocation, texOrig, spriteSheet->second.cellDim);
+                SaveCharacter();
+                EditAnimationState(animation, next);
+            }
+            else if (key == GLFW_KEY_R && action == GLFW_PRESS)
+            {
+                // Delete the selected animation
+                character.animations.erase(character.animations.begin() + animation);
+                SaveCharacter();
+                EditCharacterState(character, rootDir);
+            }
+            else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            {
+                // Go to EditCharacterState
+                EditCharacterState(character, rootDir);
+            }
+        };
 
-            SaveCharacter();
-            EditAnimationState(animation, next);
-        }
-        else if (key == GLFW_KEY_R && action == GLFW_PRESS)
-        {
-            // Delete the selected animation
-            character.animations.erase(character.animations.begin() + animation);
-            SaveCharacter();
-            EditCharacterState(character, rootDir);
-        }
-        else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        {
-            // Go to EditCharacterState
-            EditCharacterState(character, rootDir);
-        }
-    };
-
-    // Draw event for this State
-    DrawCallback newDrawEvent = [animation, sprite] {
-        auto spriteSheet = character.spriteSheets.find(character.animations[animation].spriteSheet);
-        if (sprite != NONE && spriteSheet != character.spriteSheets.end())
-        {
-            TexturedQuad::InitQuadDrawing();
-            TexturedQuad::BindQuad(character.animations[animation].sprites[sprite].texQuadObj);
-            TexturedQuad::DrawQuad();
-        }
-    };
+        // Draw event for this State
+        newDrawEvent = [animation, sprite, spriteSheet] {
+            if (sprite != NONE)
+            {
+                TexturedQuad::InitQuadDrawing();
+                TexturedQuad::BindQuad(character.animations[animation].sprites[sprite].texQuadObj);
+                TexturedQuad::DrawQuad();
+            }
+        };
+    }
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, nullptr, nullptr, newDrawEvent);
 }

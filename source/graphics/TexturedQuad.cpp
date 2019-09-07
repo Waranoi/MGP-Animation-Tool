@@ -5,6 +5,25 @@
 
 static const int QUAD_ELEMENT_COUNT = 6;
 
+// Invalid default value not set
+static bool invalidSet = false;
+// Invalid default value
+static GLuint invalid;
+
+TexturedQuad::TexQuadObj::TexQuadObj()
+{
+    // If invalid default value has not been set
+    if (!invalidSet)
+    {
+        // Generate buffer value and set it as invalid default value
+        invalidSet = true;
+        glGenBuffers(1, &invalid);
+    }
+    
+    // Set default value to be the same as the invalid default value
+    vbo = ebo = tex = invalid;
+}
+
 TexturedQuad::TexQuadObj TexturedQuad::CreateQuad(std::string texSource)
 {
     TexQuadObj newTexQuad;
@@ -94,6 +113,12 @@ TexturedQuad::TexQuadObj TexturedQuad::CreateQuad(std::string texSource, Vector2
 TexturedQuad::TexQuadObj TexturedQuad::UpdateQuad(TexQuadObj quad)
 {
     return quad;
+}
+
+bool TexturedQuad::IsValidTexQuad(TexQuadObj quad)
+{
+    // If quad values are the same as the invalid default value then the quad is invalid
+    return quad.vbo != invalid && quad.ebo != invalid && quad.tex != invalid;
 }
 
 void TexturedQuad::InitQuadDrawing()

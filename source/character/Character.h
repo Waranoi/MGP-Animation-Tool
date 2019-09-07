@@ -60,8 +60,7 @@ namespace CharacterTypes
         // Name of the animation, should be unique to the character
         std::string name;
         
-        // Weak pointer to the sprite sheet this animation depends on. Validity of ptr should be checked regularly
-        //std::weak_ptr<SpriteSheet> spriteSheet;
+        // Key to the sprite sheet this animation depends on
         std::string spriteSheet;
 
         // The sprites in this animation
