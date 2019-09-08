@@ -65,12 +65,29 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     return;
                 case 0:
                 {
-                    Animation animation;
-                    animation.name = "animation" + std::to_string(character.animations.size());
+                    printf("Set sprite sheet for animation (-1 to cancel) --> ");
+                    int selected = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
+                    if (selected != -1)
+                    {
+                        // Create animation
+                        Animation animation;
 
-                    character.animations.emplace_back(animation);
-                    SaveCharacter();
-                    EditAnimationState(character.animations.size()-1, 0);
+                        // Set name of animation
+                        animation.name = "animation" + std::to_string(character.animations.size());
+                        
+                        // Set sprite sheet of animation
+                        auto spriteSheet = character.spriteSheets.begin();
+                        std::advance(spriteSheet, selected); 
+                        animation.spriteSheet = spriteSheet->first;
+                        
+                        // Save sprite sheet and go to state
+                        character.animations.emplace_back(animation);
+                        SaveCharacter();
+                        EditAnimationState(character.animations.size()-1, 0);
+                    }
+                    else
+                        printf("Cancelled create new animation\n\n");
+
                     break;
                 }
                 case 1:
@@ -330,41 +347,32 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
     KeyboardCallback newKeyboardEvent = nullptr;
     DrawCallback newDrawEvent = nullptr;
 
-    if (spriteSheet == character.spriteSheets.end())
+    if (spriteSheet == character.spriteSheets.end() || TexturedQuad::IsValidTexQuad(spriteSheet->second.texQuadObj))
     {
+        printf("Warning: Referenced sprite sheet is broken\n");
         printf("\nState: Edit Animation\n");
-        printf("S: Set sprite sheet\n");
-        printf("Referenced sprite sheet '%s' does not exist\n", character.animations[animation].spriteSheet.c_str());
+        printf("R: Remove animation\n");
+        printf("ESC: Go to Edit Character state\n\n");
 
         // Keyboard action event for this State.
         newKeyboardEvent = [animation, sprite, spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
-            if (key == GLFW_KEY_S && action == GLFW_PRESS)
+            if (key == GLFW_KEY_R && action == GLFW_PRESS)
             {
-                printf("List of sprite sheets:\n");
-                int spriteSheetIndex = 0;
-                for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
-                {
-                    printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
-                    spriteSheetIndex++;
-                }
-
-                printf("\nSelect sprite sheet (-1 to cancel) --> ");
-                spriteSheetIndex = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
-
-                if (spriteSheetIndex != -1)
-                {
-                    auto spriteSheetIter = character.spriteSheets.begin();
-                    std::advance(spriteSheetIter, spriteSheetIndex);
-                    character.animations[animation].spriteSheet = spriteSheetIter->first;
-                    EditAnimationState(animation, sprite);
-                }
+                // Delete the selected animation
+                character.animations.erase(character.animations.begin() + animation);
+                SaveCharacter();
+                EditCharacterState(character, rootDir);
+            }
+            else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            {
+                // Go to EditCharacterState
+                EditCharacterState(character, rootDir);
             }
         };
     }
     else
     {
         printf("\nState: Edit Animation\n");
-        printf("S: Set sprite sheet\n");
         printf("P: Playback animation\n");
         printf("E: Select sprite\n");
         printf("Right arrow: Next sprite\n");
@@ -375,27 +383,6 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
 
         // Keyboard action event for this State.
         newKeyboardEvent = [animation, sprite, spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
-            if (key == GLFW_KEY_S && action == GLFW_PRESS)
-            {
-                printf("List of sprite sheets:\n");
-                int spriteSheetIndex = 0;
-                for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
-                {
-                    printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
-                    spriteSheetIndex++;
-                }
-
-                printf("\nSelect sprite sheet (-1 to cancel) --> ");
-                spriteSheetIndex = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
-
-                if (spriteSheetIndex != -1)
-                {
-                    auto spriteSheetIter = character.spriteSheets.begin();
-                    std::advance(spriteSheetIter, spriteSheetIndex);
-                    character.animations[animation].spriteSheet = spriteSheetIter->first;
-                    EditAnimationState(animation, sprite);
-                }
-            }
             if (key == GLFW_KEY_P && action == GLFW_PRESS)
             {
                 // Animate selected animation

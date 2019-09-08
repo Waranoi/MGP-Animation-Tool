@@ -131,7 +131,11 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
     for (auto it = c.spriteSheets.begin(); it != c.spriteSheets.end(); it++)
     {
         // Create render object
-        it->second.texQuadObj = TexturedQuad::CreateQuad(rootDir + it->second.sourceLocation);
+        std::ifstream f(rootDir + it->second.sourceLocation);
+        if (f.good())
+            it->second.texQuadObj = TexturedQuad::CreateQuad(rootDir + it->second.sourceLocation);
+        else
+           printf("Sprite sheet source '%s' does not exist!\n", (rootDir + it->second.sourceLocation).c_str());
     }
 
     for (int i = 0; i < c.animations.size(); i++)
@@ -145,7 +149,14 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
         }
         catch(const std::out_of_range& e)
         {
-            printf("No matching sprite sheet '%s' found for Animation '%s'", anim.spriteSheet.c_str(), anim.name.c_str());
+            printf("No matching sprite sheet '%s' found for Animation '%s'\n", anim.spriteSheet.c_str(), anim.name.c_str());
+            continue;
+        }
+
+        // Check if sprite sheet is valid
+        if (!TexturedQuad::IsValidTexQuad(spriteSheet.texQuadObj))
+        {
+            printf("Sprite sheet '%s' found for Animation '%s' is not valid\n", anim.spriteSheet.c_str(), anim.name.c_str());
             continue;
         }
         
