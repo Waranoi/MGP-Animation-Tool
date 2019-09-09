@@ -232,70 +232,107 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheetIndex)
     if (!ValidateSpriteSheet(character, spriteSheetIndex))
         return;
 
-    printf("\nState: Edit Sprite Sheet\n");
-    printf("I: Edit image source width and height\n");
-    printf("C: Edit cell width and height\n");
-    printf("R: Remove sprite sheet\n");
-    printf("ESC: Go to Edit Character state\n\n");
-
     auto spriteSheet = character.spriteSheets.begin();
     std::advance(spriteSheet, spriteSheetIndex); 
 
-    // Keyboard action event for this State.
-    KeyboardCallback newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
-        if (key == GLFW_KEY_I && action == GLFW_PRESS)
-        {
-            printf("Set image width: ");
-            spriteSheet->second.texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+    KeyboardCallback newKeyboardEvent = nullptr;
+    DrawCallback newDrawEvent = nullptr;
+    if (!TexturedQuad::IsValidTexQuad(spriteSheet->second.texQuadObj))
+    {
+        printf("Warning: Sprite sheet is broken\n");
+        printf("R: Remove sprite sheet\n");
+        printf("ESC: Go to Edit Character state\n\n");
 
-            printf("Set image height: ");
-            spriteSheet->second.texDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
-
-            // Save changes
-            SaveCharacter();
-        }
-        else if (key == GLFW_KEY_C && action == GLFW_PRESS)
-        {
-            printf("Set sprite sheet cell width: ");
-            spriteSheet->second.cellDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
-
-            printf("Set sprite sheet cell height: ");
-            spriteSheet->second.cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
-
-            // Save changes
-            SaveCharacter();
-        }
-        else if (key == GLFW_KEY_R && action == GLFW_PRESS)
-        {
-            // Delete the selected sprite sheet
-            int err = std::remove((rootDir + spriteSheet->second.sourceLocation).c_str());
-            if (err == 0 || errno == ENOENT)
+        newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
+            if (key == GLFW_KEY_R && action == GLFW_PRESS)
             {
-                // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
-                character.spriteSheets.erase(spriteSheet);
-                SaveCharacter();
+                // Delete the selected sprite sheet
+                int err = std::remove((rootDir + spriteSheet->second.sourceLocation).c_str());
+                if (err == 0 || errno == ENOENT)
+                {
+                    // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
+                    character.spriteSheets.erase(spriteSheet);
+                    SaveCharacter();
+                    EditCharacterState(character, rootDir);
+                }
+                else
+                {
+                    // Failed to remove sprite sheet image
+                    std::perror("Failed to remove sprite sheet");
+                    printf("Error code: %d", err);
+                }
+            }
+            else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            {
+                // Go to EditCharacterState
                 EditCharacterState(character, rootDir);
             }
-            else
-            {
-                // Failed to remove sprite sheet image
-                std::perror("Failed to remove sprite sheet");
-                printf("Error code: %d", err);
-            }
-        }
-        else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        {
-            // Go to EditCharacterState
-            EditCharacterState(character, rootDir);
-        }
-    };
+        };
+    }
+    else
+    {
+        printf("\nState: Edit Sprite Sheet\n");
+        printf("I: Edit image source width and height\n");
+        printf("C: Edit cell width and height\n");
+        printf("R: Remove sprite sheet\n");
+        printf("ESC: Go to Edit Character state\n\n");
 
-    // Draw event for this State
-    DrawCallback newDrawEvent = [spriteSheet] {
-        TexturedQuad::InitQuadDrawing();
-        TexturedQuad::BindQuad(spriteSheet->second.texQuadObj);
-        TexturedQuad::DrawQuad();
-    };
+        // Keyboard action event for this State.
+        newKeyboardEvent = [spriteSheet] (GLFWwindow* window, int key, int scancode, int action, int mods) {
+            if (key == GLFW_KEY_I && action == GLFW_PRESS)
+            {
+                printf("Set image width: ");
+                spriteSheet->second.texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                printf("Set image height: ");
+                spriteSheet->second.texDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                // Save changes
+                SaveCharacter();
+            }
+            else if (key == GLFW_KEY_C && action == GLFW_PRESS)
+            {
+                printf("Set sprite sheet cell width: ");
+                spriteSheet->second.cellDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                printf("Set sprite sheet cell height: ");
+                spriteSheet->second.cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
+
+                // Save changes
+                SaveCharacter();
+            }
+            else if (key == GLFW_KEY_R && action == GLFW_PRESS)
+            {
+                // Delete the selected sprite sheet
+                int err = std::remove((rootDir + spriteSheet->second.sourceLocation).c_str());
+                if (err == 0 || errno == ENOENT)
+                {
+                    // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
+                    character.spriteSheets.erase(spriteSheet);
+                    SaveCharacter();
+                    EditCharacterState(character, rootDir);
+                }
+                else
+                {
+                    // Failed to remove sprite sheet image
+                    std::perror("Failed to remove sprite sheet");
+                    printf("Error code: %d", err);
+                }
+            }
+            else if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            {
+                // Go to EditCharacterState
+                EditCharacterState(character, rootDir);
+            }
+        };
+
+        // Draw event for this State
+        newDrawEvent = [spriteSheet] {
+            TexturedQuad::InitQuadDrawing();
+            TexturedQuad::BindQuad(spriteSheet->second.texQuadObj);
+            TexturedQuad::DrawQuad();
+        };
+    }
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, nullptr, nullptr, newDrawEvent);
 }
@@ -347,7 +384,7 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
     KeyboardCallback newKeyboardEvent = nullptr;
     DrawCallback newDrawEvent = nullptr;
 
-    if (spriteSheet == character.spriteSheets.end() || TexturedQuad::IsValidTexQuad(spriteSheet->second.texQuadObj))
+    if (spriteSheet == character.spriteSheets.end() || !TexturedQuad::IsValidTexQuad(spriteSheet->second.texQuadObj))
     {
         printf("Warning: Referenced sprite sheet is broken\n");
         printf("\nState: Edit Animation\n");
