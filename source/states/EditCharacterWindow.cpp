@@ -487,9 +487,13 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
         newDrawEvent = [animation, sprite, spriteSheet] {
             if (sprite != NONE)
             {
-                TexturedQuad::InitQuadDrawing();
-                TexturedQuad::BindQuad(character.animations[animation].sprites[sprite].texQuadObj);
-                TexturedQuad::DrawQuad();
+                TexturedQuad::TexQuadObj texQuadObj = character.animations[animation].sprites[sprite].texQuadObj;
+                if (TexturedQuad::IsValidTexQuad(texQuadObj))
+                {
+                    TexturedQuad::InitQuadDrawing();
+                    TexturedQuad::BindQuad(texQuadObj);
+                    TexturedQuad::DrawQuad();
+                }
             }
         };
     }

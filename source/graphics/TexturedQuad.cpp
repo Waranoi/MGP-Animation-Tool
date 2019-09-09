@@ -68,13 +68,21 @@ TexturedQuad::TexQuadObj TexturedQuad::CreateQuad(std::string texSource, Vector2
 {
     TexQuadObj newTexQuad;
     Vector2i size;
-    Vector2f sizeInv, texOrigNorm, texSizeNorm;
+    Vector2f sizeInv, texOrigNorm, texSizeNorm, texBorderNorm;
     int comp;
 
     unsigned char *texData = stbi_load(texSource.c_str(), &size.x, &size.y, &comp, STBI_rgb_alpha);
     sizeInv = Vector2f(1.0f/size.x, 1.0f/size.y);
     texOrigNorm = sizeInv * texOrig;
     texSizeNorm = sizeInv * texSize;
+    texBorderNorm = texOrigNorm + texSizeNorm;
+
+    if (texOrigNorm.x < 0 || texOrigNorm.y < 0 || texOrigNorm.x > size.x || texOrigNorm.y > size.y ||
+        texBorderNorm.x < 0 || texBorderNorm.y < 0 || texBorderNorm.x > size.x || texBorderNorm.y > size.y)
+    {
+        printf("WARNING: Texture coordinates extend beyond source image\n");
+        return newTexQuad;
+    }
 
     float quadVB[] = 
     {
@@ -82,13 +90,13 @@ TexturedQuad::TexQuadObj TexturedQuad::CreateQuad(std::string texSource, Vector2
         texOrigNorm.x,                  texOrigNorm.y,
         
 		-1,	                            1,                                  0,
-       texOrigNorm.x,                   texOrigNorm.y + texSizeNorm.y,	
+       texOrigNorm.x,                   texBorderNorm.y,	
 
 		1,                              1,                                  0,
-        texOrigNorm.x + texSizeNorm.x,  texOrigNorm.y + texSizeNorm.y,	
+        texBorderNorm.x,                texBorderNorm.y,	
 
 		1,	                            -1,	                                0,
-        texOrigNorm.x + texSizeNorm.x,  texOrigNorm.y
+        texBorderNorm.x,                texOrigNorm.y
     };
     int quadEB[] = { 0, 1, 2, 0, 2, 3 };
 

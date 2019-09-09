@@ -6,7 +6,6 @@ Add loading times to LoadCharacter function.
 Select .mpgchar root directory instead of file.
 Change sprite cell ordering from "bottom to top" to "top to bottom".
 Replace SpriteSheet.sourceLocation usage with its map key equivalent.
-Gracefully handle out of bounds error with animation sprites.
 Draw some noticeable quad when rendering a texquadobj with default value to notify the user that something is wrong.
 Release buffer objects when deleting objects with texquadobjects. Maybe with shared pointers and custom destructors?
 
