@@ -22,7 +22,6 @@ void CharacterTypes::from_json(const json& j, Version& v)
 // Serialize Sprite Sheet
 void CharacterTypes::to_json(json& j, const SpriteSheet& s)
 {
-    j["sourceLocation"] = s.sourceLocation;
     j["width"] = s.texDim.x;
     j["height"] = s.texDim.y;
     j["cell width"] = s.cellDim.x;
@@ -31,7 +30,6 @@ void CharacterTypes::to_json(json& j, const SpriteSheet& s)
 
 void CharacterTypes::from_json(const json& j, SpriteSheet& s)
 {
-    j.at("sourceLocation").get_to(s.sourceLocation);
     j.at("width").get_to(s.texDim.x);
     j.at("height").get_to(s.texDim.y);
     j.at("cell width").get_to(s.cellDim.x);
@@ -131,11 +129,11 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
     for (auto it = c.spriteSheets.begin(); it != c.spriteSheets.end(); it++)
     {
         // Create render object
-        std::ifstream f(rootDir + it->second.sourceLocation);
+        std::ifstream f(rootDir + it->first);
         if (f.good())
-            it->second.texQuadObj = TexturedQuad::CreateQuad(rootDir + it->second.sourceLocation);
+            it->second.texQuadObj = TexturedQuad::CreateQuad(rootDir + it->first);
         else
-           printf("Sprite sheet source '%s' does not exist!\n", (rootDir + it->second.sourceLocation).c_str());
+           printf("Sprite sheet source '%s' does not exist!\n", (rootDir + it->first).c_str());
     }
 
     for (int i = 0; i < c.animations.size(); i++)
@@ -167,7 +165,7 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
             // Get origo of sprite cell in texture
             Vector2i texOrig(spriteCell * spriteSheet.cellDim.x % spriteSheet.texDim.x, spriteCell * spriteSheet.cellDim.x / spriteSheet.texDim.x * spriteSheet.cellDim.y);
             // Create texture quad for sprite
-            c.animations[i].sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet.sourceLocation, texOrig, spriteSheet.cellDim);
+            c.animations[i].sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + anim.spriteSheet, texOrig, spriteSheet.cellDim);
         }
     }
 

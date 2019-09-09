@@ -40,11 +40,9 @@ namespace CharacterTypes
         std::vector<Hitbox> hitboxes;
     };
 
+    // Filepath to the sprite sheet source is defined as the key for the sprite sheet in the Character struct
     struct SpriteSheet
     {
-        // Filepath to the sprite sheet source. Is also used as the name of the sprite sheet
-        std::string sourceLocation;
-
         // Width and height of sprite sheet
         Vector2i texDim;
 

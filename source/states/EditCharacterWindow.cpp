@@ -113,17 +113,17 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     }
 
                     // Set sprite source
-                    newSpriteSheet.sourceLocation = "sprite sheets/" + file;
+                    std::string sourceLocation = "sprite sheets/" + file;
 
                     // Check if a sprite sheet with this sourceLocation already exists
-                    if (character.spriteSheets.find(newSpriteSheet.sourceLocation) != character.spriteSheets.end())
+                    if (character.spriteSheets.find(sourceLocation) != character.spriteSheets.end())
                     {
                         printf("Can't import %s, a sprite sheet with this name already exists\n\n", file.c_str());
                         break;
                     }
 
                     // Check if imported image will conflict with existing image
-                    std::ifstream copyTargetTest(rootDir + newSpriteSheet.sourceLocation, std::ios::binary);
+                    std::ifstream copyTargetTest(rootDir + sourceLocation, std::ios::binary);
                     if (!copyTargetTest.good())
                     {
                         // create folders if they are missing
@@ -164,12 +164,12 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                         infile.close();
 
                         // save image locally in the mpgchar folder
-                        std::ofstream copyTarget(rootDir + newSpriteSheet.sourceLocation, std::ios::binary);
+                        std::ofstream copyTarget(rootDir + sourceLocation, std::ios::binary);
                         copyTarget.write(buffer.data(), buffer.size());
                         copyTarget.close();
 
                         // Create render object
-                        newSpriteSheet.texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet.sourceLocation);
+                        newSpriteSheet.texQuadObj = TexturedQuad::CreateQuad(rootDir + sourceLocation);
                     }
                     else
                         printf("No sprite sheet named %s exists, but a sprite sheet source image with this name already exists.\nUsing existing source image for new sprite sheet.\n", file.c_str());
@@ -177,7 +177,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     copyTargetTest.close();
 
                     // Create render object
-                    newSpriteSheet.texQuadObj = TexturedQuad::CreateQuad(rootDir + newSpriteSheet.sourceLocation);
+                    newSpriteSheet.texQuadObj = TexturedQuad::CreateQuad(rootDir + sourceLocation);
 
                     printf("Set image width: ");
                     newSpriteSheet.texDim.x = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
@@ -192,7 +192,7 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     newSpriteSheet.cellDim.y = ConsoleUtils::GetIntegerInput(0, INT_MAX - 1);
 
                     printf("\n");
-                    character.spriteSheets.insert(std::pair<std::string, SpriteSheet>(newSpriteSheet.sourceLocation, newSpriteSheet));
+                    character.spriteSheets.insert(std::pair<std::string, SpriteSheet>(sourceLocation, newSpriteSheet));
                     SaveCharacter();
                     EditSpriteSheetState(character.spriteSheets.size()-1);
                     break;
@@ -247,7 +247,7 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheetIndex)
             if (key == GLFW_KEY_R && action == GLFW_PRESS)
             {
                 // Delete the selected sprite sheet
-                int err = std::remove((rootDir + spriteSheet->second.sourceLocation).c_str());
+                int err = std::remove((rootDir + spriteSheet->first).c_str());
                 if (err == 0 || errno == ENOENT)
                 {
                     // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
@@ -304,7 +304,7 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheetIndex)
             else if (key == GLFW_KEY_R && action == GLFW_PRESS)
             {
                 // Delete the selected sprite sheet
-                int err = std::remove((rootDir + spriteSheet->second.sourceLocation).c_str());
+                int err = std::remove((rootDir + spriteSheet->first).c_str());
                 if (err == 0 || errno == ENOENT)
                 {
                     // Remove sprite sheet if sprite sheet image was succesfully removed or if it didn't exist to begin with
@@ -464,7 +464,7 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
                     spriteCell * spriteSheet->second.cellDim.x / spriteSheet->second.texDim.x * spriteSheet->second.cellDim.y
                 );
                 // Create texture quad for sprite
-                character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->second.sourceLocation, texOrig, spriteSheet->second.cellDim);
+                character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->first, texOrig, spriteSheet->second.cellDim);
 
                 SaveCharacter();
                 EditAnimationState(animation, next);
