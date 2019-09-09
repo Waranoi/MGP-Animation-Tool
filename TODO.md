@@ -2,6 +2,7 @@ Tidy up the following fixed bug: Imported sprite sheets are not copied to the sp
 
 Tidy upp the add and load sprite sheet code.
 
+Fix TexturedQuad::IsValidTexQuad function.
 Add loading times to LoadCharacter function.
 Select .mpgchar root directory instead of file.
 Change sprite cell ordering from "bottom to top" to "top to bottom".
