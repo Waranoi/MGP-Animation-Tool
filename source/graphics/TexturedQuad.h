@@ -3,6 +3,18 @@
 #include <string>
 #include "vmath.h"
 
+struct TextureQuadObject
+{
+    GLuint vbo, ebo, tex;
+    TextureQuadObject();
+    ~TextureQuadObject();
+
+    // Rule of three, deleting copy constructor and copy assignment operator as a lazy solution to handling copying of allocated data
+    TextureQuadObject(const TextureQuadObject& other) = delete; // copy constructor
+    TextureQuadObject& operator=(const TextureQuadObject& other) = delete; // copy assignment
+
+};
+
 namespace TexturedQuad
 {
     struct TexQuadObj
@@ -25,4 +37,6 @@ namespace TexturedQuad
     // Draw and bind your quads as needed.
     void BindQuad(TexQuadObj quad);
     void DrawQuad();
+
+    // 
 };

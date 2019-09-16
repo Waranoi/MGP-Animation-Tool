@@ -10,6 +10,18 @@ static bool invalidSet = false;
 // Invalid default value
 static GLuint invalid;
 
+TextureQuadObject::TextureQuadObject()
+{
+
+}
+
+TextureQuadObject::~TextureQuadObject()
+{
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
+    glDeleteBuffers(1, &tex);
+}
+
 TexturedQuad::TexQuadObj::TexQuadObj()
 {
     // If invalid default value has not been set
