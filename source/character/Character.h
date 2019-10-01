@@ -34,7 +34,7 @@ namespace CharacterTypes
         int cell;
         
         // Texture Quad Object
-        TexturedQuad::TexQuadObj texQuadObj;
+        std::shared_ptr<TextureQuadObject> texQuadObj;
 
         // The hitboxes of this sprite
         std::vector<Hitbox> hitboxes;
@@ -50,7 +50,7 @@ namespace CharacterTypes
         Vector2i cellDim;
 
         // Texture Quad Object
-        TexturedQuad::TexQuadObj texQuadObj;
+        std::shared_ptr<TextureQuadObject> texQuadObj;
     };
 
     struct Animation

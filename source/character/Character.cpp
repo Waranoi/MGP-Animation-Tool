@@ -152,7 +152,7 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
         }
 
         // Check if sprite sheet is valid
-        if (!TexturedQuad::IsValidTexQuad(spriteSheet.texQuadObj))
+        if (!spriteSheet.texQuadObj)
         {
             printf("Sprite sheet '%s' found for Animation '%s' is not valid\n", anim.spriteSheet.c_str(), anim.name.c_str());
             continue;

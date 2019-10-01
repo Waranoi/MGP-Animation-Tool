@@ -237,7 +237,7 @@ void EditCharacterWindow::EditSpriteSheetState(int spriteSheetIndex)
 
     KeyboardCallback newKeyboardEvent = nullptr;
     DrawCallback newDrawEvent = nullptr;
-    if (!TexturedQuad::IsValidTexQuad(spriteSheet->second.texQuadObj))
+    if (!spriteSheet->second.texQuadObj)
     {
         printf("Warning: Sprite sheet is broken\n");
         printf("R: Remove sprite sheet\n");
@@ -384,7 +384,7 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
     KeyboardCallback newKeyboardEvent = nullptr;
     DrawCallback newDrawEvent = nullptr;
 
-    if (spriteSheet == character.spriteSheets.end() || !TexturedQuad::IsValidTexQuad(spriteSheet->second.texQuadObj))
+    if (spriteSheet == character.spriteSheets.end() || !spriteSheet->second.texQuadObj)
     {
         printf("Warning: Referenced sprite sheet is broken\n");
         printf("\nState: Edit Animation\n");
@@ -487,8 +487,8 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
         newDrawEvent = [animation, sprite, spriteSheet] {
             if (sprite != NONE)
             {
-                TexturedQuad::TexQuadObj texQuadObj = character.animations[animation].sprites[sprite].texQuadObj;
-                if (TexturedQuad::IsValidTexQuad(texQuadObj))
+                std::shared_ptr<TextureQuadObject> texQuadObj = character.animations[animation].sprites[sprite].texQuadObj;
+                if (texQuadObj)
                 {
                     TexturedQuad::InitQuadDrawing();
                     TexturedQuad::BindQuad(texQuadObj);
