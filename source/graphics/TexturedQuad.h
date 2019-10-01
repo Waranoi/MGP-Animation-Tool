@@ -2,6 +2,7 @@
 #include "../core/Window/Window.h"
 #include <string>
 #include "vmath.h"
+#include <memory>
 
 struct TextureQuadObject
 {

@@ -62,7 +62,7 @@ std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSourc
 
     stbi_image_free(texData);
 
-    return std::make_shared<TextureQuadObject>(newTexQuad);
+    return std::shared_ptr<TextureQuadObject>(newTexQuad);
 }
 
 std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSource, Vector2i texOrig, Vector2i texSize)
@@ -76,7 +76,6 @@ std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSourc
         return std::shared_ptr<TextureQuadObject>();
     }
 
-    Vector2f sizeInv, texOrigNorm, texSizeNorm, texBorderNorm;
     Vector2f sizeInv = Vector2f(1.0f/size.x, 1.0f/size.y);
     Vector2f texOrigNorm = sizeInv * texOrig;
     Vector2f texSizeNorm = sizeInv * texSize;
@@ -124,7 +123,7 @@ std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSourc
 
     stbi_image_free(texData);
 
-    return std::make_shared<TextureQuadObject>(newTexQuad);
+    return std::shared_ptr<TextureQuadObject>(newTexQuad);
 }
 
 void TexturedQuad::UpdateQuad(std::shared_ptr<TextureQuadObject> quad)
