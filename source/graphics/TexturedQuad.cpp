@@ -126,6 +126,12 @@ std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSourc
     return std::shared_ptr<TextureQuadObject>(newTexQuad);
 }
 
+std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSource, Vector2i texDim, Vector2i cellDim, int cell)
+{
+    Vector2i texOrig(cell * cellDim.x % texDim.x, texDim.y-(cell * cellDim.x / texDim.x * cellDim.y)-cellDim.y);
+    return CreateQuad(texSource, texOrig, cellDim);
+}
+
 void TexturedQuad::UpdateQuad(std::shared_ptr<TextureQuadObject> quad)
 {
     if (!quad)

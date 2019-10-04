@@ -3,7 +3,6 @@ Tidy up the following fixed bug: Imported sprite sheets are not copied to the sp
 Tidy upp the add and load sprite sheet code.
 
 Add loading times to LoadCharacter function.
-Change sprite cell ordering from "bottom to top" to "top to bottom".
 Draw some noticeable quad when rendering a texquadobj with default value to notify the user that something is wrong.
 
 Render animation hitboxes

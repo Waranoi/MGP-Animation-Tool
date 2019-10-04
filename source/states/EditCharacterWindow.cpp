@@ -455,16 +455,12 @@ void EditCharacterWindow::EditAnimationState(int animation, int sprite)
                 printf("Select sprite cell: ");
                 character.animations[animation].sprites[next].cell = ConsoleUtils::GetIntegerInput(true);
 
-                // Sprite cell alias for easier to read code
-                int spriteCell = character.animations[animation].sprites[next].cell;
-                // Get origo of sprite cell in texture
-                Vector2i texOrig
-                (
-                    spriteCell * spriteSheet->second.cellDim.x % spriteSheet->second.texDim.x, 
-                    spriteCell * spriteSheet->second.cellDim.x / spriteSheet->second.texDim.x * spriteSheet->second.cellDim.y
-                );
                 // Create texture quad for sprite
-                character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(rootDir + spriteSheet->first, texOrig, spriteSheet->second.cellDim);
+                character.animations[animation].sprites[next].texQuadObj = TexturedQuad::CreateQuad(
+                    rootDir + spriteSheet->first, 
+                    spriteSheet->second.texDim, 
+                    spriteSheet->second.cellDim, 
+                    character.animations[animation].sprites[next].cell);
 
                 SaveCharacter();
                 EditAnimationState(animation, next);

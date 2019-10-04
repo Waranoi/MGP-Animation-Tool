@@ -159,13 +159,9 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
         }
         
         for (int j = 0; j < anim.sprites.size(); j++)
-        {            
-            // Sprite cell alias for easier to read code
-            int spriteCell = anim.sprites[j].cell;
-            // Get origo of sprite cell in texture
-            Vector2i texOrig(spriteCell * spriteSheet.cellDim.x % spriteSheet.texDim.x, spriteCell * spriteSheet.cellDim.x / spriteSheet.texDim.x * spriteSheet.cellDim.y);
+        {           
             // Create texture quad for sprite
-            c.animations[i].sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + anim.spriteSheet, texOrig, spriteSheet.cellDim);
+            c.animations[i].sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + anim.spriteSheet, spriteSheet.texDim, spriteSheet.cellDim, anim.sprites[j].cell);
         }
     }
 

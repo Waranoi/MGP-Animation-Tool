@@ -22,6 +22,8 @@ namespace TexturedQuad
     std::shared_ptr<TextureQuadObject> CreateQuad(std::string texSource);
     // texOrig and texSize defines the piece of texSource to be displayed. Values are expected to be in pixel space. 
     std::shared_ptr<TextureQuadObject> CreateQuad(std::string texSource, Vector2i texOrig, Vector2i texSize);
+    // texDim and cellDim are the dimensions of the texture and a single texture cell. cell is which cell of the texSource to display.
+    std::shared_ptr<TextureQuadObject> CreateQuad(std::string texSource, Vector2i texDim, Vector2i cellDim, int cell);
     // Update your quad.
     void UpdateQuad(std::shared_ptr<TextureQuadObject> quad);
 
