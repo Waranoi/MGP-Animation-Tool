@@ -65,6 +65,15 @@ void EditCharacterWindow::EditCharacterState(Character target, std::string targe
                     return;
                 case 0:
                 {
+                    // List all sprite sheets to pick from
+                    printf("List of sprite sheets:\n");
+                    int spriteSheetIndex = 0;
+                    for (auto it = character.spriteSheets.begin(); it != character.spriteSheets.end(); it++)
+                    {
+                        printf("%d. %s\n", spriteSheetIndex, it->first.c_str());
+                        spriteSheetIndex++;
+                    }
+                    
                     printf("Set sprite sheet for animation (-1 to cancel) --> ");
                     int selected = ConsoleUtils::GetIntegerInput(-1, character.spriteSheets.size()-1);
                     if (selected != -1)
