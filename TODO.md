@@ -5,6 +5,7 @@ Tidy upp the add and load sprite sheet code.
 Add loading times to LoadCharacter function.
 Draw some noticeable quad when rendering a texquadobj with default value to notify the user that something is wrong.
 
+Fix crash on cancel load character
 Make lower left corner of sprite cell the origo
 Make hitbox coordinates relative to the sprite cell origo
 Move around and zoom workspace by modifying shaders
