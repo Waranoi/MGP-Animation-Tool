@@ -90,17 +90,17 @@ std::shared_ptr<TextureQuadObject> TexturedQuad::CreateQuad(std::string texSourc
 
     float quadVB[] = 
     {
-		-1,	                            -1,                                 0,
-        texOrigNorm.x,                  texOrigNorm.y,
+		0,	                0,                  0,
+        texOrigNorm.x,      texOrigNorm.y,
         
-		-1,	                            1,                                  0,
-       texOrigNorm.x,                   texBorderNorm.y,	
+		0,	                texSizeNorm.y,      0,
+        texOrigNorm.x,      texBorderNorm.y,	
 
-		1,                              1,                                  0,
-        texBorderNorm.x,                texBorderNorm.y,	
+		texSizeNorm.x,      texSizeNorm.y,      0,
+        texBorderNorm.x,    texBorderNorm.y,	
 
-		1,	                            -1,	                                0,
-        texBorderNorm.x,                texOrigNorm.y
+		texSizeNorm.x,	    0,                  0,
+        texBorderNorm.x,    texOrigNorm.y
     };
     int quadEB[] = { 0, 1, 2, 0, 2, 3 };
 
