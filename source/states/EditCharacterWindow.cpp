@@ -554,6 +554,12 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
             // Create a new hitbox
             int next = character.animations[animation].sprites[sprite].hitboxes.size();
             character.animations[animation].sprites[sprite].hitboxes.emplace_back();
+
+            Aabb3f box(-0.1f, -0.1f, 0.0f, 0.1f, 0.1f, 0.0f);
+            character.animations[animation].sprites[sprite].hitboxes[next].type = HITBOX;
+            character.animations[animation].sprites[sprite].hitboxes[next].hitbox = box;
+            character.animations[animation].sprites[sprite].hitboxes[next].quadObj = ColoredQuad::CreateQuad(box);
+
             SaveCharacter();
             EditSpriteState(animation, sprite, next);
         }
@@ -576,8 +582,27 @@ void EditCharacterWindow::EditSpriteState(int animation, int sprite, int hitbox)
     };
 
     // Draw event for this State
-    DrawCallback newDrawEvent = [] {
-        
+    DrawCallback newDrawEvent = [animation, sprite] {
+        if (sprite != NONE)
+        {
+            std::shared_ptr<TextureQuadObject> texQuadObj = character.animations[animation].sprites[sprite].texQuadObj;
+            if (texQuadObj)
+            {
+                TexturedQuad::InitQuadDrawing();
+                TexturedQuad::BindQuad(texQuadObj);
+                TexturedQuad::DrawQuad();
+            }
+
+            ColoredQuad::InitQuadDrawing();
+            for (Hitbox hitbox : character.animations[animation].sprites[sprite].hitboxes)
+            {
+                if (hitbox.quadObj)
+                {
+                    ColoredQuad::BindQuad(hitbox.quadObj);
+                    ColoredQuad::DrawQuad();
+                }
+            }
+        }
     };
 
     StateMediator::SetEventCallbacks(newKeyboardEvent, nullptr, nullptr, newDrawEvent);

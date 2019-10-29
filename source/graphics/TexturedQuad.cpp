@@ -144,12 +144,6 @@ void TexturedQuad::InitQuadDrawing()
 {
     // Use the right shader
     glUseProgram(Shaders::texQuadProgram);
-
-    // Set VAO (Vertex Attribute Object)
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, nullptr);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (GLvoid*)(sizeof(float) * 3));
 }
 
 void TexturedQuad::BindQuad(std::shared_ptr<TextureQuadObject> quad)
@@ -157,11 +151,18 @@ void TexturedQuad::BindQuad(std::shared_ptr<TextureQuadObject> quad)
     if (!quad)
         return;
 
+    // Order matters. Have to bind buffer before doing anything related to vertex attribs
     glBindBuffer(GL_ARRAY_BUFFER, quad->vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad->ebo);
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, quad->tex);
+
+    // Set VAO (Vertex Attribute Object)
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, nullptr);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (GLvoid*)(sizeof(float) * 3));
 }
 
 void TexturedQuad::DrawQuad()

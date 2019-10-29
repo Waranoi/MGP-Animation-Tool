@@ -6,6 +6,7 @@
 #include "vmath.h"
 #include "../nlohmann/json.hpp"
 #include "TexturedQuad.h"
+#include "ColoredQuad.h"
 
 namespace CharacterTypes
 {
@@ -25,7 +26,10 @@ namespace CharacterTypes
     struct Hitbox
     {
         HitboxType type;
-        Aabb3f hitbox; 
+        Aabb3f hitbox;
+        
+        // Colored Quad Object
+        std::shared_ptr<ColoredQuadObject> quadObj;
     };
 
     struct Sprite

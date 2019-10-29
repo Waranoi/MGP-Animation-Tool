@@ -19,7 +19,7 @@ struct ColoredQuadObject
 namespace ColoredQuad
 {
     // texDim and cellDim are the dimensions of the texture and a single texture cell. cell is which cell of the texSource to display.
-    std::shared_ptr<ColoredQuadObject> CreateQuad(Vector2i quadOrig, Vector2i quadSize);
+    std::shared_ptr<ColoredQuadObject> CreateQuad(Aabb3f quad);
     // Update your quad.
     void UpdateQuad(std::shared_ptr<ColoredQuadObject> quad);
 

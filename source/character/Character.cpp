@@ -162,6 +162,11 @@ CharacterTypes::Character CharacterTypes::LoadCharacter(std::string character)
         {           
             // Create texture quad for sprite
             c.animations[i].sprites[j].texQuadObj = TexturedQuad::CreateQuad(rootDir + anim.spriteSheet, spriteSheet.texDim, spriteSheet.cellDim, anim.sprites[j].cell);
+
+            for (int k = 0; k < c.animations[i].sprites[j].hitboxes.size(); k++)
+            {
+                c.animations[i].sprites[j].hitboxes[k].quadObj = ColoredQuad::CreateQuad(c.animations[i].sprites[j].hitboxes[k].hitbox);
+            }
         }
     }
 
