@@ -22,8 +22,10 @@ SRCROOT = source
 
 # Store path to source files, in a convenient format
 SRCDIRS := $(patsubst %/,%,$(dir $(CSRCS)) $(dir $(CXXSRCS)))
+# Add source root as source directory
+SRCDIRS += $(SRCROOT)
 # Add all folders below source root as source directories, in a convenient format. Folders to and below the ones specified in the EXCLUDE variable are ignored
-SRCDIRS += $(patsubst ./%,%,$(shell find ./$(SRCROOT) $(patsubst %,-not \( -path ./% -prune \),$(EXCLUDE)) -type d))
+SRCDIRS += $(filter-out $(addsuffix %,$(EXCLUDE)),$(subst \,/,$(patsubst $(shell CHDIR )\\%,%,$(shell DIR /A:D /B /S $(SRCROOT)))))
 
 # Find all source files in all source directories
 CSRCS += $(wildcard $(SRCDIRS:%=%/*.c))
@@ -40,11 +42,7 @@ DEPS := $(OBJS:.o=.d)
 BINDIRS := $(BIN) $(SRCDIRS:%=build/%)
 
 # Dummy variable that's never used. Evaluated immidiately which creates all the needed binary directories
-create-output-directories := 				\
-	$(shell for f in $(BINDIRS); 			\
-		do 									\
-			MKDIR -p $$f; 					\
-		done)
+create-output-directories := $(shell for %%f in ($(subst /,\,$(BINDIRS))) do if not exist %%f (mkdir %%f))
 
 $(BIN)/$(EXE): $(OBJS)
 	g++ -o $@ $^ $(LDIR) $(LIBS)
@@ -57,7 +55,7 @@ $(BIN)/%.o: %.c
 
 .PHONY: clean
 clean:
-	rm -r $(BIN)
+	$(shell rmdir /Q /S "$(BIN)" )
 
 -include $(DEPS)
 
