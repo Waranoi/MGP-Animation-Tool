@@ -25,7 +25,9 @@ SRCDIRS := $(patsubst %/,%,$(dir $(CSRCS)) $(dir $(CXXSRCS)))
 # Add source root as source directory
 SRCDIRS += $(SRCROOT)
 # Add all folders below source root as source directories, in a convenient format. Folders to and below the ones specified in the EXCLUDE variable are ignored
-SRCDIRS += $(filter-out $(addsuffix %,$(EXCLUDE)),$(subst \,/,$(patsubst $(shell CHDIR )\\%,%,$(shell DIR /A:D /B /S $(SRCROOT)))))
+SRCDIRS += $(subst \,/,$(patsubst $(shell CHDIR )\\%,%,$(shell DIR /A:D /B /S $(SRCROOT))))
+# Remove excluded folders from source directories
+SRCDIRS := $(filter-out $(addsuffix %,$(EXCLUDE)),$(SRCDIRS))
 
 # Find all source files in all source directories
 CSRCS += $(wildcard $(SRCDIRS:%=%/*.c))
