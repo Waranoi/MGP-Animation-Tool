@@ -41,7 +41,7 @@ OBJS := $(CSRCS:%.c=$(BIN)/%.o) $(CXXSRCS:%.cpp=$(BIN)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 # List of binary directories
-BINDIRS := $(BIN) $(SRCDIRS:%=build/%)
+BINDIRS := $(BIN) $(patsubst %,build/%,$(dir $(CSRCS)) $(dir $(CXXSRCS)))
 
 # Dummy variable that's never used. Evaluated immidiately which creates all the needed binary directories
 create-output-directories := $(shell for %%f in ($(subst /,\,$(BINDIRS))) do if not exist %%f (mkdir %%f))
