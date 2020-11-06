@@ -32,12 +32,13 @@ SRCDIRS := $(filter-out $(addsuffix %,$(EXCLUDE)),$(SRCDIRS))
 # Find all source files in all source directories
 CSRCS += $(wildcard $(SRCDIRS:%=%/*.c))
 CXXSRCS += $(wildcard $(SRCDIRS:%=%/*.cpp))
+CXXSRCS += $(wildcard $(SRCDIRS:%=%/*.cc))
 # Set all source directories as include folders, in a valid format
 INCLUDE += $(SRCDIRS:%=-I%) -MMD -MP
 
 # TODO Remember to check for duplicates and abort if found
 # Create object and dependency files from source files below the binary folder
-OBJS := $(CSRCS:%.c=$(BIN)/%.o) $(CXXSRCS:%.cpp=$(BIN)/%.o)
+OBJS := $(CSRCS:%.c=$(BIN)/%.o) $(filter %.o,$(CXXSRCS:%.cpp=$(BIN)/%.o) $(CXXSRCS:%.cc=$(BIN)/%.o))
 DEPS := $(OBJS:.o=.d)
 
 # List of binary directories
@@ -50,6 +51,9 @@ $(BIN)/$(EXE): $(OBJS)
 	g++ -o $@ $^ $(LDIR) $(LIBS)
 
 $(BIN)/%.o: %.cpp
+	g++ -c -o $@ $< $(INCLUDE)
+
+$(BIN)/%.o: %.cc
 	g++ -c -o $@ $< $(INCLUDE)
 
 $(BIN)/%.o: %.c
